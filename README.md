@@ -2,7 +2,7 @@
 
 A high-performance, lifecycle-safe, and low-end device optimized Google Mobile Ads & UMP (GDPR) Consent library for Android.
 
-[![JitPack](https://img.shields.io/badge/JitPack-1.0.0-brightgreen.svg)](https://jitpack.io/#3bdesamad/ads)
+[![JitPack](https://img.shields.io/badge/JitPack-1.0.0-brightgreen.svg)](https://jitpack.io/#3bdesamad/smdey-ads-sdk)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![MinSdk](https://img.shields.io/badge/MinSdk-28-green.svg)](https://developer.android.com)
 [![TargetSdk](https://img.shields.io/badge/TargetSdk-37-brightgreen.svg)](https://developer.android.com)
@@ -42,7 +42,7 @@ dependencyResolutionManagement {
 In your `app/build.gradle`:
 ```groovy
 dependencies {
-    implementation 'com.github.3bdesamad:ads:1.0.0'
+    implementation 'com.github.3bdesamad:smdey-ads-sdk:1.0.0'
 }
 ```
 
