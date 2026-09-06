@@ -17,10 +17,3 @@ build/
 
 # Internal Scratch & Reference Files (Do NOT upload to GitHub)
 GEMINI.md
-pr.txt
-colorsDark.xml
-colorsLight.xml
-ADS_STRUCTURE_REPORT_AR.md
-UPLOAD_GUIDE.md
-GDPR_ADMOB_GUIDE.md
-nativeAd.png
