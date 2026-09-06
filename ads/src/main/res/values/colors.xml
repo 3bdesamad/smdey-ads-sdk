@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dialog Loading Colors (Light Mode) -->
+    <color name="ads_dialog_bg">#F2F7FA</color>
+    <color name="ads_dialog_text_title">#4C6565</color>
+    <color name="ads_dialog_text_subtitle">#8C9695</color>
+    <color name="ads_accent">#005AB5</color>
+    <color name="ads_skeleton_bg">#E3E9EC</color>
+
+    <!-- Native Ad Colors-->
+    <color name="ads_native_card_bg">#FFFFFF</color>
+    <color name="ads_native_card_stroke">#EEF3F7</color>
+    <color name="ads_native_badge_bg">#FFB703</color>
+    <color name="ads_native_badge_text">#000000</color>
+    <color name="ads_native_headline">#1C1B1F</color>
+    <color name="ads_native_body">#4C6565</color>
+    <color name="ads_native_cta_bg">#005AB5</color>
+    <color name="ads_native_cta_text">#FFFFFF</color>
+</resources>

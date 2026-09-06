@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- 1. Toolbar -->
+    <include
+        android:id="@+id/incToolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btnConsent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_consent" />
+
+            <Button
+                android:id="@+id/btnInterstitial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/show_interstitial" />
+
+            <Button
+                android:id="@+id/btnRewarded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/show_rewarded" />
+
+            <Button
+                android:id="@+id/btnRewardedInterstitial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Show Rewarded Interstitial Ad" />
+
+            <Button
+                android:id="@+id/btnRefreshNative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Reload Native Ads" />
+
+            <Button
+                android:id="@+id/btnOpenDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Open Next Screen (Detail Activity)" />
+
+            <Button
+                android:id="@+id/btnToggleRemoveAds"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/toggle_remove_ads" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Status: Ready"
+                android:textSize="16sp" />
+
+            <!-- Small Native Ad Preview -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Native Ad (Small Template)"
+                android:textStyle="bold" />
+
+            <com.smdey.ads.views.SmartNativeView
+                android:id="@+id/smartNativeSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:ads_template="small" />
+
+            <!-- Medium Native Ad Preview -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Native Ad (Medium Template)"
+                android:textStyle="bold" />
+
+            <com.smdey.ads.views.SmartNativeView
+                android:id="@+id/smartNativeMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:ads_template="medium" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- SmartBannerView integrated cleanly -->
+    <com.smdey.ads.views.SmartBannerView
+        android:id="@+id/smartBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

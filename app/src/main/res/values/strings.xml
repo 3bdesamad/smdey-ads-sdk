@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smdey Ads Demo</string>
+    <string name="show_interstitial">Show Interstitial Ad</string>
+    <string name="show_rewarded">Show Rewarded Ad</string>
+    <string name="request_consent">Request GDPR Consent</string>
+    <string name="toggle_remove_ads">Toggle Remove Ads</string>
+</resources>

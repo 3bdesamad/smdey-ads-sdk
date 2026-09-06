@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Latest Material 3 DayNight Theme with Edge-to-Edge Support -->
+    <style name="Theme.AdsSample" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#2196F3</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#E3F2FD</item>
+        <item name="colorOnPrimaryContainer">#0D47A1</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#1C1B1F</item>
+        <item name="android:windowBackground">#F8F9FA</item>
+    </style>
+
+    <!-- Material 3 Toolbar Title Appearance -->
+    <style name="toolbarAppearance" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <!-- Material 3 Toolbar Overlay Theme -->
+    <style name="toolbarBackColor" parent="ThemeOverlay.Material3.Dark">
+        <item name="android:background">#2196F3</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+        <item name="colorOnSurfaceVariant">#FFFFFF</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="colorControlNormal">#FFFFFF</item>
+    </style>
+</resources>

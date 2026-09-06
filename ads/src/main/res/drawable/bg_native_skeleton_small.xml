@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Icon Placeholder -->
+    <item
+        android:width="48dp"
+        android:height="48dp"
+        android:gravity="start|center_vertical"
+        android:start="12dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ads_skeleton_bg" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+
+    <!-- Title Bar Placeholder -->
+    <item
+        android:height="14dp"
+        android:gravity="top"
+        android:start="70dp"
+        android:end="90dp"
+        android:top="16dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ads_skeleton_bg" />
+            <corners android:radius="3dp" />
+        </shape>
+    </item>
+
+    <!-- Subtitle Bar Placeholder -->
+    <item
+        android:width="120dp"
+        android:height="12dp"
+        android:gravity="bottom"
+        android:start="70dp"
+        android:bottom="16dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ads_skeleton_bg" />
+            <corners android:radius="3dp" />
+        </shape>
+    </item>
+
+    <!-- CTA Button Placeholder -->
+    <item
+        android:width="72dp"
+        android:height="36dp"
+        android:gravity="end|center_vertical"
+        android:end="12dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ads_skeleton_bg" />
+            <corners android:radius="6dp" />
+        </shape>
+    </item>
+</layer-list>

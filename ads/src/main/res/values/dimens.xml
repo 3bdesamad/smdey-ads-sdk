@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="ads_dialog_padding_h">24dp</dimen>
+    <dimen name="ads_dialog_padding_v">32dp</dimen>
+    <dimen name="ads_dialog_margin_h">40dp</dimen>
+    <dimen name="ads_banner_skeleton_height">60dp</dimen>
+    <dimen name="ads_banner_padding">10dp</dimen>
+
+    <!-- Native Ad Dimens -->
+    <dimen name="ads_native_card_radius">10dp</dimen>
+    <dimen name="ads_native_badge_radius">6dp</dimen>
+    <dimen name="ads_native_cta_radius">8dp</dimen>
+    <dimen name="ads_native_padding">12dp</dimen>
+    <dimen name="ads_native_small_height">72dp</dimen>
+    <dimen name="ads_native_medium_height">136dp</dimen>
+</resources>
