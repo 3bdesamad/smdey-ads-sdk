@@ -152,7 +152,7 @@ You can do this using either **Method A (Terminal)** or **Method B (GitHub Websi
 ##### 💻 Method A: Using Terminal Commands (Fastest)
 ```bash
 # 1. Create the annotated tag
-git tag -a 1.0.1 -m "Release v1.0.1"
+git tag -a 1.0.1 -m "1.0.1"
 
 # 2. Push the tag to GitHub
 git push origin 1.0.1
@@ -167,7 +167,7 @@ git checkout develop
 2. On the right-hand sidebar, click **"Releases"** (or click **"Create a new release"**).
 3. Click the button **"Draft a new release"**.
 4. Click **"Choose a tag"**, type `1.0.1`, and click **"+ Create new tag: 1.0.1 on main"**.
-5. Set the Title (e.g., `Release v1.0.1`).
+5. Set the Title: `1.0.1`.
 6. Click **"Generate release notes"** (GitHub will automatically list all commits since the last release).
 7. Click the green button **"Publish release"**.
 
@@ -193,7 +193,7 @@ git tag -d 1.0.0
 git push origin --delete 1.0.0
 
 # 4. Re-create the tag on your current latest commit
-git tag -a 1.0.0 -m "Release v1.0.0"
+git tag -a 1.0.0 -m "1.0.0"
 
 # 5. Push the new tag to GitHub
 git push origin 1.0.0
@@ -243,6 +243,6 @@ git branch -a
 | **Merge develop into current branch** | `git merge develop` |
 | **Push to main** | `git push origin main` |
 | **Switch to develop** | `git checkout develop` |
-| **Create release tag** | `git tag -a 1.0.0 -m "Release 1.0.0"` |
-| **Push release tag** | `git push origin 1.0.0` |
+| **Create release tag** | `git tag -a 1.0.1 -m "1.0.1"` |
+| **Push release tag** | `git push origin 1.0.1` |
 | **View last 5 commits** | `git log --oneline -n 5` |
