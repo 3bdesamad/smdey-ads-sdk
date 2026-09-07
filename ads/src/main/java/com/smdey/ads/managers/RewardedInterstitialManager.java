@@ -62,7 +62,7 @@ public final class RewardedInterstitialManager {
     }
 
     public void preloadAd(@NonNull Context context) {
-        if (adsRemoved || !config.isRewardedInterstitialEnabled()) {
+        if (adsRemoved || !config.isRewardedInterstitialEnabled() || config.getRewardedInterstitialAdUnitId() == null) {
             return;
         }
         if (rewardedInterstitialAd != null || loading.get()) {
@@ -77,7 +77,8 @@ public final class RewardedInterstitialManager {
             return;
         }
 
-        if (adsRemoved || !config.isRewardedInterstitialEnabled()) {
+        if (adsRemoved || !config.isRewardedInterstitialEnabled() || config.getRewardedInterstitialAdUnitId() == null) {
+            Log.w(SdkGate.TAG, "⚠️ RewardedInterstitialManager - Feature disabled or no ad unit ID configured.");
             if (listener != null) listener.onAdFailedToLoad();
             return;
         }

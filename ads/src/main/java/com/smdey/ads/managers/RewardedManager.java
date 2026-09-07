@@ -52,7 +52,8 @@ public final class RewardedManager {
             return;
         }
 
-        if (!config.isRewardedEnabled()) {
+        if (!config.isRewardedEnabled() || config.getRewardedAdUnitId() == null) {
+            Log.w(SdkGate.TAG, "⚠️ RewardedManager - Feature disabled or no ad unit ID configured.");
             if (listener != null) listener.onAdFailedToLoad();
             return;
         }

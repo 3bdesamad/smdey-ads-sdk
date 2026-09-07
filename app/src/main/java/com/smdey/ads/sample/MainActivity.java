@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements OpenAdVisibilityC
 
         // Display current Grace Period / Ad status
         isAdsRemoved = AdsFacade.getInstance().isAdsRemoved();
-        binding.tvStatus.setText(GracePeriodManager.getStatusSummary(this));
+        binding.tvStatus.setText(AdsFacade.getInstance().getGracePeriodStatusSummary());
 
         initListeners();
     }

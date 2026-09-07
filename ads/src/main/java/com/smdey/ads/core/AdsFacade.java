@@ -11,6 +11,7 @@ import com.smdey.ads.callbacks.ConsentCallback;
 import com.smdey.ads.managers.AppOpenManager;
 import com.smdey.ads.managers.BannerManager;
 import com.smdey.ads.managers.ConsentManager;
+import com.smdey.ads.managers.GracePeriodManager;
 import com.smdey.ads.managers.InterstitialManager;
 import com.smdey.ads.managers.NativeManager;
 import com.smdey.ads.managers.RewardedInterstitialManager;
@@ -65,6 +66,13 @@ public final class AdsFacade {
         this.rewardedManager = new RewardedManager(sdkGate);
         this.rewardedInterstitialManager = new RewardedInterstitialManager(sdkGate);
         this.nativeManager = new NativeManager(sdkGate);
+
+        // Evaluate onboarding grace period
+        if (config.isGracePeriodEnabled() && GracePeriodManager.isGracePeriodActive(appContext, config)) {
+            setAdsRemoved(true);
+            Log.i(SdkGate.TAG, "⏳ AdsFacade - Grace period active. Ads automatically muted.");
+        }
+
         Log.i(SdkGate.TAG, "✅ AdsFacade - Ready.");
     }
 
@@ -129,6 +137,15 @@ public final class AdsFacade {
 
     public boolean isAdsRemoved() {
         return adsRemoved;
+    }
+
+    public boolean isGracePeriodActive() {
+        return GracePeriodManager.isGracePeriodActive(appContext, config);
+    }
+
+    @NonNull
+    public String getGracePeriodStatusSummary() {
+        return GracePeriodManager.getStatusSummary(appContext, config);
     }
 
     public boolean canRequestAds() {

@@ -19,6 +19,7 @@ A high-performance, lifecycle-safe, and low-end device optimized Google Mobile A
 - ⏱️ **Debounced Interstitials & Click Throttling**: Frequency control and cooldown timers with smooth custom loading overlays.
 - 📱 **App Open Cooldown**: Automatic banner auto-hide/restore bridge when App Open ads are presented.
 - 🛡️ **Google UMP (GDPR) Ready**: European Economic Area (EEA) consent gathering and Privacy Options management built-in.
+- ⏳ **Anti-Tamper Grace Period**: Automatically pauses ads for newly installed users with OS install-time tracking and clock rollback detection.
 - 💎 **One-Line In-App Purchase Support**: Call `AdsFacade.getInstance().setAdsRemoved(true)` to instantly disable all ads.
 
 ---
@@ -83,6 +84,8 @@ public class MyApplication extends Application {
                 .setNativeId("ca-app-pub-xxxxxxxxxxxxxxxx/nnnnnnnnnn")
                 .setCollapsibleBannerEnabled(true) // Enables 2x-3x higher banner eCPM
                 .setCollapsibleGravity("bottom")
+                .setGracePeriodEnabled(true)       // Delay ads for new installs
+                .setGracePeriodDays(3)             // Days to pause ads (e.g. 3, 5, 7)
                 .setDebugMode(BuildConfig.DEBUG)   // Uses Google test IDs in debug builds
                 .setInterstitialFrequency(3)       // Show interstitial every 3 clicks
                 .setInterstitialCooldownMs(30000)
@@ -93,6 +96,10 @@ public class MyApplication extends Application {
     }
 }
 ```
+
+> [!TIP]
+> **Smart Auto-Configuration**: All Ad Unit IDs are completely optional! If your app doesn't use a format (e.g. Rewarded or Native), **simply omit its `.set...Id()` call**. The SDK automatically detects missing IDs and disables that format with zero wasted network or memory.
+> You can also explicitly pass `.setRewardedEnabled(false)` anytime (e.g. for Firebase Remote Config kill-switches).
 
 ### 2. Add Smart Banner in XML Layout
 

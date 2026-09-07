@@ -18,6 +18,10 @@ public final class AdsConfig {
     public static final String TEST_REWARDED_INTERSTITIAL = "ca-app-pub-3940256099942544/5354046379";
     public static final String TEST_NATIVE = "ca-app-pub-3940256099942544/2247696110";
 
+    // Grace Period Defaults
+    public static final boolean ENABLE_GRACE_PERIOD = true; // true = activate delay, false = show ads immediately
+    public static final int GRACE_PERIOD_DAYS = 3;          // Number of days (e.g. 3, 5, 7)
+
     private final String bannerAdUnitId;
     private final String interstitialAdUnitId;
     private final String appOpenAdUnitId;
@@ -33,6 +37,8 @@ public final class AdsConfig {
     private final boolean nativeEnabled;
     private final boolean collapsibleBannerEnabled;
     private final String collapsibleGravity;
+    private final boolean gracePeriodEnabled;
+    private final int gracePeriodDays;
     private final int interstitialFrequency;
     private final long interstitialCooldownMs;
     private final long appOpenCooldownMs;
@@ -49,14 +55,35 @@ public final class AdsConfig {
         this.rewardedInterstitialAdUnitId = builder.rewardedInterstitialAdUnitId;
         this.nativeAdUnitId = builder.nativeAdUnitId;
         this.debugMode = builder.debugMode;
-        this.bannerEnabled = builder.bannerEnabled;
-        this.interstitialEnabled = builder.interstitialEnabled;
-        this.appOpenEnabled = builder.appOpenEnabled;
-        this.rewardedEnabled = builder.rewardedEnabled;
-        this.rewardedInterstitialEnabled = builder.rewardedInterstitialEnabled;
-        this.nativeEnabled = builder.nativeEnabled;
+        // Smart Auto-Enable: If explicitly toggled, use that. Otherwise, auto-enable only if ID is configured.
+        this.bannerEnabled = builder.bannerEnabled != null
+                ? builder.bannerEnabled
+                : (builder.bannerAdUnitId != null && !builder.bannerAdUnitId.trim().isEmpty());
+
+        this.interstitialEnabled = builder.interstitialEnabled != null
+                ? builder.interstitialEnabled
+                : (builder.interstitialAdUnitId != null && !builder.interstitialAdUnitId.trim().isEmpty());
+
+        this.appOpenEnabled = builder.appOpenEnabled != null
+                ? builder.appOpenEnabled
+                : (builder.appOpenAdUnitId != null && !builder.appOpenAdUnitId.trim().isEmpty());
+
+        this.rewardedEnabled = builder.rewardedEnabled != null
+                ? builder.rewardedEnabled
+                : (builder.rewardedAdUnitId != null && !builder.rewardedAdUnitId.trim().isEmpty());
+
+        this.rewardedInterstitialEnabled = builder.rewardedInterstitialEnabled != null
+                ? builder.rewardedInterstitialEnabled
+                : (builder.rewardedInterstitialAdUnitId != null && !builder.rewardedInterstitialAdUnitId.trim().isEmpty());
+
+        this.nativeEnabled = builder.nativeEnabled != null
+                ? builder.nativeEnabled
+                : (builder.nativeAdUnitId != null && !builder.nativeAdUnitId.trim().isEmpty());
+
         this.collapsibleBannerEnabled = builder.collapsibleBannerEnabled;
         this.collapsibleGravity = builder.collapsibleGravity != null ? builder.collapsibleGravity : "bottom";
+        this.gracePeriodEnabled = builder.gracePeriodEnabled;
+        this.gracePeriodDays = builder.gracePeriodDays;
         this.interstitialFrequency = builder.interstitialFrequency;
         this.interstitialCooldownMs = builder.interstitialCooldownMs;
         this.appOpenCooldownMs = builder.appOpenCooldownMs;
@@ -66,35 +93,42 @@ public final class AdsConfig {
         this.testDeviceHashedId = builder.testDeviceHashedId;
     }
 
+    @Nullable
     public String getBannerAdUnitId() {
         return getBannerAdUnitId(false);
     }
 
+    @Nullable
     public String getBannerAdUnitId(boolean isCollapsible) {
         if (debugMode) {
             return isCollapsible ? TEST_COLLAPSIBLE_BANNER : TEST_BANNER;
         }
-        return bannerAdUnitId != null ? bannerAdUnitId : TEST_BANNER;
+        return bannerAdUnitId;
     }
 
+    @Nullable
     public String getInterstitialAdUnitId() {
-        return debugMode ? TEST_INTERSTITIAL : (interstitialAdUnitId != null ? interstitialAdUnitId : TEST_INTERSTITIAL);
+        return debugMode ? TEST_INTERSTITIAL : interstitialAdUnitId;
     }
 
+    @Nullable
     public String getAppOpenAdUnitId() {
-        return debugMode ? TEST_APP_OPEN : (appOpenAdUnitId != null ? appOpenAdUnitId : TEST_APP_OPEN);
+        return debugMode ? TEST_APP_OPEN : appOpenAdUnitId;
     }
 
+    @Nullable
     public String getRewardedAdUnitId() {
-        return debugMode ? TEST_REWARDED : (rewardedAdUnitId != null ? rewardedAdUnitId : TEST_REWARDED);
+        return debugMode ? TEST_REWARDED : rewardedAdUnitId;
     }
 
+    @Nullable
     public String getRewardedInterstitialAdUnitId() {
-        return debugMode ? TEST_REWARDED_INTERSTITIAL : (rewardedInterstitialAdUnitId != null ? rewardedInterstitialAdUnitId : TEST_REWARDED_INTERSTITIAL);
+        return debugMode ? TEST_REWARDED_INTERSTITIAL : rewardedInterstitialAdUnitId;
     }
 
+    @Nullable
     public String getNativeAdUnitId() {
-        return debugMode ? TEST_NATIVE : (nativeAdUnitId != null ? nativeAdUnitId : TEST_NATIVE);
+        return debugMode ? TEST_NATIVE : nativeAdUnitId;
     }
 
     public boolean isDebugMode() {
@@ -134,6 +168,14 @@ public final class AdsConfig {
         return collapsibleGravity;
     }
 
+    public boolean isGracePeriodEnabled() {
+        return gracePeriodEnabled;
+    }
+
+    public int getGracePeriodDays() {
+        return gracePeriodDays;
+    }
+
     public int getInterstitialFrequency() {
         return interstitialFrequency;
     }
@@ -171,14 +213,16 @@ public final class AdsConfig {
         private String rewardedInterstitialAdUnitId;
         private String nativeAdUnitId;
         private boolean debugMode = false;
-        private boolean bannerEnabled = true;
-        private boolean interstitialEnabled = true;
-        private boolean appOpenEnabled = true;
-        private boolean rewardedEnabled = true;
-        private boolean rewardedInterstitialEnabled = true;
-        private boolean nativeEnabled = true;
+        private Boolean bannerEnabled = null;
+        private Boolean interstitialEnabled = null;
+        private Boolean appOpenEnabled = null;
+        private Boolean rewardedEnabled = null;
+        private Boolean rewardedInterstitialEnabled = null;
+        private Boolean nativeEnabled = null;
         private boolean collapsibleBannerEnabled = false;
         private String collapsibleGravity = "bottom";
+        private boolean gracePeriodEnabled = ENABLE_GRACE_PERIOD;
+        private int gracePeriodDays = GRACE_PERIOD_DAYS;
         private int interstitialFrequency = 3;
         private long interstitialCooldownMs = 30000L;
         private long appOpenCooldownMs = 40000L;
@@ -259,6 +303,16 @@ public final class AdsConfig {
 
         public Builder setCollapsibleGravity(@NonNull String collapsibleGravity) {
             this.collapsibleGravity = collapsibleGravity;
+            return this;
+        }
+
+        public Builder setGracePeriodEnabled(boolean gracePeriodEnabled) {
+            this.gracePeriodEnabled = gracePeriodEnabled;
+            return this;
+        }
+
+        public Builder setGracePeriodDays(int gracePeriodDays) {
+            this.gracePeriodDays = gracePeriodDays;
             return this;
         }
 

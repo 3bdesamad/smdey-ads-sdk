@@ -8,9 +8,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -149,7 +153,7 @@ public final class InterstitialManager {
             return;
         }
 
-        if (adsRemoved || !config.isInterstitialEnabled()) {
+        if (adsRemoved || !config.isInterstitialEnabled() || config.getInterstitialAdUnitId() == null) {
             navigationCallback.navigate();
             return;
         }
@@ -218,7 +222,7 @@ public final class InterstitialManager {
     private void requestLoad(@NonNull Context context,
                              @Nullable Activity activity,
                              boolean isBackgroundPreload) {
-        if (adsRemoved || !config.isInterstitialEnabled()) {
+        if (adsRemoved || !config.isInterstitialEnabled() || config.getInterstitialAdUnitId() == null) {
             failPendingRequest(true);
             return;
         }
@@ -343,6 +347,17 @@ public final class InterstitialManager {
         Window window = dialog.getWindow();
         if (window != null) {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+            int marginPx = activity.getResources().getDimensionPixelSize(R.dimen.ads_dialog_margin_h);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            params.leftMargin = marginPx;
+            params.rightMargin = marginPx;
+            params.gravity = Gravity.CENTER;
+            view.setLayoutParams(params);
         }
         return dialog;
     }

@@ -77,7 +77,7 @@ public final class AppOpenManager {
     }
 
     public void scheduleFirstPreload(@NonNull Activity activity) {
-        if (!LifecycleGuard.isActivityValid(activity) || adsRemoved || !config.isAppOpenEnabled()) {
+        if (!LifecycleGuard.isActivityValid(activity) || adsRemoved || !config.isAppOpenEnabled() || config.getAppOpenAdUnitId() == null) {
             return;
         }
 
@@ -100,7 +100,7 @@ public final class AppOpenManager {
     }
 
     public void requestPreload(@NonNull Context context) {
-        if (adsRemoved || !config.isAppOpenEnabled() || !sdkGate.isReady()) {
+        if (adsRemoved || !config.isAppOpenEnabled() || config.getAppOpenAdUnitId() == null || !sdkGate.isReady()) {
             return;
         }
 

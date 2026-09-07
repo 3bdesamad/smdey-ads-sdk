@@ -88,7 +88,7 @@ public final class NativeManager {
     }
 
     public void preloadAd(@NonNull Context context) {
-        if (adsRemoved || !config.isNativeEnabled()) {
+        if (adsRemoved || !config.isNativeEnabled() || config.getNativeAdUnitId() == null) {
             return;
         }
 
@@ -105,7 +105,8 @@ public final class NativeManager {
             return;
         }
 
-        if (adsRemoved || !config.isNativeEnabled()) {
+        if (adsRemoved || !config.isNativeEnabled() || config.getNativeAdUnitId() == null) {
+            Log.w(SdkGate.TAG, "⚠️ NativeManager - Feature disabled or no ad unit ID configured.");
             if (listener != null) listener.onAdFailedToLoad();
             return;
         }

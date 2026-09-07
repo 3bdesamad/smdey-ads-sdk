@@ -7,6 +7,7 @@
     android:layout_marginHorizontal="@dimen/ads_dialog_margin_h"
     android:background="@drawable/bg_ads_loading_dialog"
     android:gravity="center"
+    android:minWidth="280dp"
     android:orientation="vertical"
     android:paddingHorizontal="@dimen/ads_dialog_padding_h"
     android:paddingVertical="@dimen/ads_dialog_padding_v">

@@ -118,8 +118,8 @@ public final class BannerManager {
             return;
         }
 
-        if (!config.isBannerEnabled()) {
-            Log.d(SdkGate.TAG, "⚠️ BannerManager - Feature disabled. Hiding banner.");
+        if (!config.isBannerEnabled() || config.getBannerAdUnitId() == null) {
+            Log.d(SdkGate.TAG, "⚠️ BannerManager - Feature disabled or no ad unit ID. Hiding banner.");
             callback.onBannerHidden();
             return;
         }
