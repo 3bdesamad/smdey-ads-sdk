@@ -20,9 +20,10 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.ads.nativead.MediaView;
-import com.google.android.gms.ads.nativead.NativeAd;
-import com.google.android.gms.ads.nativead.NativeAdView;
+import com.google.android.libraries.ads.mobile.sdk.common.Image;
+import com.google.android.libraries.ads.mobile.sdk.nativead.MediaView;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView;
 import com.smdey.ads.R;
 import com.smdey.ads.callbacks.OnNativeAdLoadedListener;
 import com.smdey.ads.core.AdsFacade;
@@ -242,7 +243,7 @@ public final class SmartNativeView extends FrameLayout implements DefaultLifecyc
         // 3. Icon
         ImageView iconView = nativeAdView.findViewById(R.id.ad_app_icon);
         if (iconView != null) {
-            NativeAd.Image icon = nativeAd.getIcon();
+            Image icon = nativeAd.getIcon();
             if (icon != null && icon.getDrawable() != null) {
                 iconView.setImageDrawable(icon.getDrawable());
                 iconView.setVisibility(VISIBLE);
@@ -288,20 +289,19 @@ public final class SmartNativeView extends FrameLayout implements DefaultLifecyc
             }
         }
 
-        // 6. MediaView (for Medium template)
+        // 7. MediaView (for Medium template)
         MediaView mediaView = nativeAdView.findViewById(R.id.ad_media);
         if (mediaView != null) {
             if (nativeAd.getMediaContent() != null) {
                 mediaView.setMediaContent(nativeAd.getMediaContent());
                 mediaView.setVisibility(VISIBLE);
-                nativeAdView.setMediaView(mediaView);
             } else {
                 mediaView.setVisibility(GONE);
             }
         }
 
         // Register NativeAd with view
-        nativeAdView.setNativeAd(nativeAd);
+        nativeAdView.registerNativeAd(nativeAd, mediaView);
 
         addView(nativeAdView);
         setVisibility(VISIBLE);

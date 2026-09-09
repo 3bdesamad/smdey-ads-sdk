@@ -2,25 +2,26 @@ package com.smdey.ads.core;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.ads.MobileAds;
+import com.google.android.libraries.ads.mobile.sdk.MobileAds;
+import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration;
+import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig;
 import com.smdey.ads.managers.ConsentManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Coordinates safe, deferred initialization of the Google Mobile Ads SDK.
+ * Coordinates safe, deferred initialization of the Google Mobile Ads (GMA Next-Gen) SDK.
  */
 public final class SdkGate {
 
@@ -37,8 +38,6 @@ public final class SdkGate {
 
     private final Context appContext;
     private final AdsConfig config;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final ExecutorService initExecutor = Executors.newSingleThreadExecutor();
     private final AtomicReference<State> state = new AtomicReference<>(State.IDLE);
     private final AtomicBoolean startupStable = new AtomicBoolean(false);
     private final AtomicBoolean initScheduled = new AtomicBoolean(false);
@@ -71,7 +70,7 @@ public final class SdkGate {
 
         if (isReady()) {
             if (onReady != null) {
-                mainHandler.post(onReady);
+                AppExecutors.getInstance().mainThread().execute(onReady);
             }
             return;
         }
@@ -107,7 +106,9 @@ public final class SdkGate {
     }
 
     public void shutdown() {
-        initExecutor.shutdown();
+        synchronized (pendingReadyCallbacks) {
+            pendingReadyCallbacks.clear();
+        }
     }
 
     private void attemptInitialization(@NonNull Activity activity) {
@@ -144,7 +145,7 @@ public final class SdkGate {
         state.set(State.WAITING_SAFE_WINDOW);
         Log.i(TAG, "⏳ SdkGate - Initializing SDK with delay: " + delay + " ms.");
 
-        mainHandler.postDelayed(this::startInitialization, delay);
+        AppExecutors.getInstance().mainThread().postDelayed(this::startInitialization, delay);
     }
 
     private void startInitialization() {
@@ -157,18 +158,45 @@ public final class SdkGate {
         state.set(State.INITIALIZING);
         Log.i(TAG, "⏳ SdkGate - Background SDK initialization started.");
 
-        initExecutor.execute(() -> {
+        AppExecutors.getInstance().background().execute(() -> {
             try {
-                MobileAds.initialize(appContext, initializationStatus ->
-                        mainHandler.post(() -> {
-                            MobileAds.setAppVolume(config.getAppVolume());
+                String appId = "";
+                try {
+                    ApplicationInfo ai = appContext.getPackageManager().getApplicationInfo(
+                            appContext.getPackageName(),
+                            PackageManager.GET_META_DATA
+                    );
+                    if (ai != null && ai.metaData != null) {
+                        String metaAppId = ai.metaData.getString("com.google.android.gms.ads.APPLICATION_ID");
+                        if (metaAppId != null) {
+                            appId = metaAppId;
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+
+                InitializationConfig.Builder initConfigBuilder = new InitializationConfig.Builder(appId);
+
+                String testDeviceId = config.getTestDeviceHashedId();
+                if (testDeviceId != null && !testDeviceId.trim().isEmpty()) {
+                    RequestConfiguration requestConfiguration = new RequestConfiguration.Builder()
+                            .setTestDeviceIds(Collections.singletonList(testDeviceId))
+                            .build();
+                    initConfigBuilder.setRequestConfiguration(requestConfiguration);
+                }
+
+                InitializationConfig initConfig = initConfigBuilder.build();
+
+                MobileAds.initialize(appContext, initConfig, initializationStatus ->
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            MobileAds.setUserControlledAppVolume(config.getAppVolume());
                             state.set(State.READY);
                             initScheduled.set(false);
-                            Log.i(TAG, "✅ SdkGate - Google Mobile Ads SDK initialized successfully.");
+                            Log.i(TAG, "✅ SdkGate - GMA Next-Gen SDK initialized successfully.");
                             flushPendingCallbacks();
                         }));
             } catch (Exception e) {
-                mainHandler.post(() -> {
+                AppExecutors.getInstance().mainThread().execute(() -> {
                     state.set(State.FAILED);
                     initScheduled.set(false);
                     Log.e(TAG, "❌ SdkGate - Initialization failed.", e);
@@ -185,7 +213,7 @@ public final class SdkGate {
         }
 
         for (Runnable callback : callbacks) {
-            mainHandler.post(callback);
+            AppExecutors.getInstance().mainThread().execute(callback);
         }
     }
 }

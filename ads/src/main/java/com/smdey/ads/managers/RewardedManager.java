@@ -7,15 +7,16 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd;
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback;
 import com.smdey.ads.callbacks.OnUserEarnedRewardListener;
 import com.smdey.ads.callbacks.RewardItem;
 import com.smdey.ads.core.AdsConfig;
+import com.smdey.ads.core.AppExecutors;
 import com.smdey.ads.core.LifecycleGuard;
 import com.smdey.ads.core.SdkGate;
 
@@ -84,26 +85,29 @@ public final class RewardedManager {
         }
 
         activeListener = listener;
+        AdRequest adRequest = new AdRequest.Builder(config.getRewardedAdUnitId()).build();
         RewardedAd.load(
-                context,
-                config.getRewardedAdUnitId(),
-                new AdRequest.Builder().build(),
-                new RewardedAdLoadCallback() {
+                adRequest,
+                new AdLoadCallback<RewardedAd>() {
                     @Override
                     public void onAdLoaded(@NonNull RewardedAd ad) {
-                        rewardedAd = ad;
-                        loading.set(false);
-                        bindFullScreenCallback();
-                        Log.i(SdkGate.TAG, "✅ RewardedManager - Ad loaded successfully.");
-                        notifySuccess();
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            rewardedAd = ad;
+                            loading.set(false);
+                            bindFullScreenCallback();
+                            Log.i(SdkGate.TAG, "✅ RewardedManager - Ad loaded successfully.");
+                            notifySuccess();
+                        });
                     }
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        rewardedAd = null;
-                        loading.set(false);
-                        Log.w(SdkGate.TAG, "❌ RewardedManager - Failed to load: " + loadAdError.getMessage());
-                        notifyFailed();
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            rewardedAd = null;
+                            loading.set(false);
+                            Log.w(SdkGate.TAG, "❌ RewardedManager - Failed to load: " + loadAdError.getMessage());
+                            notifyFailed();
+                        });
                     }
                 }
         );
@@ -127,17 +131,19 @@ public final class RewardedManager {
 
         readyAd.show(activity, item -> {
             Log.i(SdkGate.TAG, "🎁 RewardedManager - Reward earned: " + item.getAmount() + " " + item.getType());
-            rewardListener.onUserEarnedReward(new RewardItem() {
-                @Override
-                public int getAmount() {
-                    return item.getAmount();
-                }
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                rewardListener.onUserEarnedReward(new RewardItem() {
+                    @Override
+                    public int getAmount() {
+                        return item.getAmount();
+                    }
 
-                @NonNull
-                @Override
-                public String getType() {
-                    return item.getType() != null ? item.getType() : "";
-                }
+                    @NonNull
+                    @Override
+                    public String getType() {
+                        return item.getType() != null ? item.getType() : "";
+                    }
+                });
             });
         });
     }
@@ -145,7 +151,7 @@ public final class RewardedManager {
     private void bindFullScreenCallback() {
         if (rewardedAd == null) return;
 
-        rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+        rewardedAd.setAdEventCallback(new RewardedAdEventCallback() {
             @Override
             public void onAdShowedFullScreenContent() {
                 Log.i(SdkGate.TAG, "✅ RewardedManager - Ad presented.");
@@ -153,14 +159,18 @@ public final class RewardedManager {
 
             @Override
             public void onAdDismissedFullScreenContent() {
-                rewardedAd = null;
-                Log.i(SdkGate.TAG, "✅ RewardedManager - Ad dismissed.");
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    rewardedAd = null;
+                    Log.i(SdkGate.TAG, "✅ RewardedManager - Ad dismissed.");
+                });
             }
 
             @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                rewardedAd = null;
-                Log.w(SdkGate.TAG, "❌ RewardedManager - Failed to show: " + adError.getMessage());
+            public void onAdFailedToShowFullScreenContent(@NonNull FullScreenContentError fullScreenContentError) {
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    rewardedAd = null;
+                    Log.w(SdkGate.TAG, "❌ RewardedManager - Failed to show: " + fullScreenContentError.getMessage());
+                });
             }
         });
     }

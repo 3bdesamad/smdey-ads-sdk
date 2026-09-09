@@ -5,8 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -19,17 +17,18 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
+import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd;
+import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAdEventCallback;
 import com.smdey.ads.R;
 import com.smdey.ads.callbacks.AdsCallback;
 import com.smdey.ads.callbacks.LoadingDialogProvider;
 import com.smdey.ads.callbacks.NavigationCallback;
 import com.smdey.ads.core.AdsConfig;
+import com.smdey.ads.core.AppExecutors;
 import com.smdey.ads.core.LifecycleGuard;
 import com.smdey.ads.core.SdkGate;
 
@@ -46,7 +45,6 @@ public final class InterstitialManager {
 
     private final SdkGate sdkGate;
     private final AdsConfig config;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final AtomicBoolean loading = new AtomicBoolean(false);
     private final AtomicBoolean showing = new AtomicBoolean(false);
 
@@ -212,7 +210,7 @@ public final class InterstitialManager {
         scheduleOverlayTimeout();
 
         if (interstitialAd != null) {
-            mainHandler.post(this::maybeShowPendingAd);
+            AppExecutors.getInstance().mainThread().execute(this::maybeShowPendingAd);
             return;
         }
 
@@ -245,25 +243,28 @@ public final class InterstitialManager {
             return;
         }
 
+        AdRequest adRequest = new AdRequest.Builder(config.getInterstitialAdUnitId()).build();
         InterstitialAd.load(
-                context,
-                config.getInterstitialAdUnitId(),
-                new AdRequest.Builder().build(),
-                new InterstitialAdLoadCallback() {
+                adRequest,
+                new AdLoadCallback<InterstitialAd>() {
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd ad) {
-                        interstitialAd = ad;
-                        loading.set(false);
-                        Log.i(SdkGate.TAG, "✅ Interstitial - Loaded successfully.");
-                        maybeShowPendingAd();
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            interstitialAd = ad;
+                            loading.set(false);
+                            Log.i(SdkGate.TAG, "✅ Interstitial - Loaded successfully.");
+                            maybeShowPendingAd();
+                        });
                     }
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        interstitialAd = null;
-                        loading.set(false);
-                        Log.w(SdkGate.TAG, "❌ Interstitial - Failed to load: " + loadAdError.getMessage());
-                        failPendingRequest(true);
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            interstitialAd = null;
+                            loading.set(false);
+                            Log.w(SdkGate.TAG, "❌ Interstitial - Failed to load: " + loadAdError.getMessage());
+                            failPendingRequest(true);
+                        });
                     }
                 }
         );
@@ -290,7 +291,7 @@ public final class InterstitialManager {
         interstitialAd = null;
         showing.set(true);
 
-        readyAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+        readyAd.setAdEventCallback(new InterstitialAdEventCallback() {
             @Override
             public void onAdShowedFullScreenContent() {
                 Log.i(SdkGate.TAG, "✅ Interstitial - Ad presented.");
@@ -298,18 +299,22 @@ public final class InterstitialManager {
 
             @Override
             public void onAdDismissedFullScreenContent() {
-                showing.set(false);
-                Log.i(SdkGate.TAG, "✅ Interstitial - Ad dismissed.");
-                if (request.continuationCallback != null) request.continuationCallback.onAction();
-                if (request.navigationCallback != null) request.navigationCallback.navigate();
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    showing.set(false);
+                    Log.i(SdkGate.TAG, "✅ Interstitial - Ad dismissed.");
+                    if (request.continuationCallback != null) request.continuationCallback.onAction();
+                    if (request.navigationCallback != null) request.navigationCallback.navigate();
+                });
             }
 
             @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                showing.set(false);
-                Log.w(SdkGate.TAG, "❌ Interstitial - Failed to show: " + adError.getMessage());
-                if (request.continuationCallback != null) request.continuationCallback.onAction();
-                if (request.navigationCallback != null) request.navigationCallback.navigate();
+            public void onAdFailedToShowFullScreenContent(@NonNull FullScreenContentError fullScreenContentError) {
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    showing.set(false);
+                    Log.w(SdkGate.TAG, "❌ Interstitial - Failed to show: " + fullScreenContentError.getMessage());
+                    if (request.continuationCallback != null) request.continuationCallback.onAction();
+                    if (request.navigationCallback != null) request.navigationCallback.navigate();
+                });
             }
         });
 
@@ -356,6 +361,8 @@ public final class InterstitialManager {
             );
             params.leftMargin = marginPx;
             params.rightMargin = marginPx;
+            params.setMarginStart(marginPx);
+            params.setMarginEnd(marginPx);
             params.gravity = Gravity.CENTER;
             view.setLayoutParams(params);
         }
@@ -382,12 +389,12 @@ public final class InterstitialManager {
                 failPendingRequest(true);
             }
         };
-        mainHandler.postDelayed(loadingTimeoutRunnable, config.getLoadingTimeoutMs());
+        AppExecutors.getInstance().mainThread().postDelayed(loadingTimeoutRunnable, config.getLoadingTimeoutMs());
     }
 
     private void cancelOverlayTimeout() {
         if (loadingTimeoutRunnable != null) {
-            mainHandler.removeCallbacks(loadingTimeoutRunnable);
+            AppExecutors.getInstance().mainThread().removeCallbacks(loadingTimeoutRunnable);
             loadingTimeoutRunnable = null;
         }
     }

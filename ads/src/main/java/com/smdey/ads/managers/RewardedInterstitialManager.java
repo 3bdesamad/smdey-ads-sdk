@@ -7,16 +7,17 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
+import com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAd;
+import com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAdEventCallback;
 import com.smdey.ads.callbacks.AdsCallback;
 import com.smdey.ads.callbacks.OnUserEarnedRewardListener;
 import com.smdey.ads.callbacks.RewardItem;
 import com.smdey.ads.core.AdsConfig;
+import com.smdey.ads.core.AppExecutors;
 import com.smdey.ads.core.LifecycleGuard;
 import com.smdey.ads.core.SdkGate;
 
@@ -125,28 +126,30 @@ public final class RewardedInterstitialManager {
         }
 
         activeListener = listener;
-        Context appContext = context.getApplicationContext() != null ? context.getApplicationContext() : context;
 
+        AdRequest adRequest = new AdRequest.Builder(config.getRewardedInterstitialAdUnitId()).build();
         RewardedInterstitialAd.load(
-                appContext,
-                config.getRewardedInterstitialAdUnitId(),
-                new AdRequest.Builder().build(),
-                new RewardedInterstitialAdLoadCallback() {
+                adRequest,
+                new AdLoadCallback<RewardedInterstitialAd>() {
                     @Override
                     public void onAdLoaded(@NonNull RewardedInterstitialAd ad) {
-                        rewardedInterstitialAd = ad;
-                        loading.set(false);
-                        bindFullScreenCallback();
-                        Log.i(SdkGate.TAG, "✅ RewardedInterstitial - Loaded successfully.");
-                        notifySuccess();
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            rewardedInterstitialAd = ad;
+                            loading.set(false);
+                            bindFullScreenCallback();
+                            Log.i(SdkGate.TAG, "✅ RewardedInterstitial - Loaded successfully.");
+                            notifySuccess();
+                        });
                     }
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        rewardedInterstitialAd = null;
-                        loading.set(false);
-                        Log.w(SdkGate.TAG, "❌ RewardedInterstitial - Failed to load: " + loadAdError.getMessage());
-                        notifyFailed();
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            rewardedInterstitialAd = null;
+                            loading.set(false);
+                            Log.w(SdkGate.TAG, "❌ RewardedInterstitial - Failed to load: " + loadAdError.getMessage());
+                            notifyFailed();
+                        });
                     }
                 }
         );
@@ -186,17 +189,19 @@ public final class RewardedInterstitialManager {
 
         readyAd.show(activity, item -> {
             Log.i(SdkGate.TAG, "🎁 RewardedInterstitial - Reward earned: " + item.getAmount() + " " + item.getType());
-            rewardListener.onUserEarnedReward(new RewardItem() {
-                @Override
-                public int getAmount() {
-                    return item.getAmount();
-                }
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                rewardListener.onUserEarnedReward(new RewardItem() {
+                    @Override
+                    public int getAmount() {
+                        return item.getAmount();
+                    }
 
-                @NonNull
-                @Override
-                public String getType() {
-                    return item.getType() != null ? item.getType() : "";
-                }
+                    @NonNull
+                    @Override
+                    public String getType() {
+                        return item.getType() != null ? item.getType() : "";
+                    }
+                });
             });
         });
     }
@@ -204,7 +209,7 @@ public final class RewardedInterstitialManager {
     private void bindFullScreenCallback() {
         if (rewardedInterstitialAd == null) return;
 
-        rewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+        rewardedInterstitialAd.setAdEventCallback(new RewardedInterstitialAdEventCallback() {
             @Override
             public void onAdShowedFullScreenContent() {
                 Log.i(SdkGate.TAG, "✅ RewardedInterstitial - Ad presented.");
@@ -212,24 +217,28 @@ public final class RewardedInterstitialManager {
 
             @Override
             public void onAdDismissedFullScreenContent() {
-                rewardedInterstitialAd = null;
-                Log.i(SdkGate.TAG, "✅ RewardedInterstitial - Ad dismissed.");
-                AdsCallback callback = currentDismissCallback;
-                currentDismissCallback = null;
-                if (callback != null) {
-                    callback.onAction();
-                }
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    rewardedInterstitialAd = null;
+                    Log.i(SdkGate.TAG, "✅ RewardedInterstitial - Ad dismissed.");
+                    AdsCallback callback = currentDismissCallback;
+                    currentDismissCallback = null;
+                    if (callback != null) {
+                        callback.onAction();
+                    }
+                });
             }
 
             @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                rewardedInterstitialAd = null;
-                Log.w(SdkGate.TAG, "❌ RewardedInterstitial - Failed to show: " + adError.getMessage());
-                AdsCallback callback = currentDismissCallback;
-                currentDismissCallback = null;
-                if (callback != null) {
-                    callback.onAction();
-                }
+            public void onAdFailedToShowFullScreenContent(@NonNull FullScreenContentError fullScreenContentError) {
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    rewardedInterstitialAd = null;
+                    Log.w(SdkGate.TAG, "❌ RewardedInterstitial - Failed to show: " + fullScreenContentError.getMessage());
+                    AdsCallback callback = currentDismissCallback;
+                    currentDismissCallback = null;
+                    if (callback != null) {
+                        callback.onAction();
+                    }
+                });
             }
         });
     }

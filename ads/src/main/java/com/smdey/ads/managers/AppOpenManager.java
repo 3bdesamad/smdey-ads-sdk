@@ -2,20 +2,20 @@ package com.smdey.ads.managers;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.appopen.AppOpenAd;
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAd;
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAdEventCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
 import com.smdey.ads.callbacks.OpenAdVisibilityControl;
 import com.smdey.ads.core.AdsConfig;
+import com.smdey.ads.core.AppExecutors;
 import com.smdey.ads.core.LifecycleGuard;
 import com.smdey.ads.core.SdkGate;
 
@@ -31,7 +31,6 @@ public final class AppOpenManager {
 
     private final SdkGate sdkGate;
     private final AdsConfig config;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final AtomicBoolean preloadScheduled = new AtomicBoolean(false);
     private final AtomicBoolean isLoading = new AtomicBoolean(false);
     private final AtomicBoolean isShowing = new AtomicBoolean(false);
@@ -93,7 +92,7 @@ public final class AppOpenManager {
             return;
         }
 
-        mainHandler.postDelayed(() -> {
+        AppExecutors.getInstance().mainThread().postDelayed(() -> {
             preloadScheduled.set(false);
             requestPreload(activity.getApplicationContext());
         }, config.getSafeStartupDelayMs());
@@ -116,23 +115,26 @@ public final class AppOpenManager {
             return;
         }
 
+        AdRequest adRequest = new AdRequest.Builder(config.getAppOpenAdUnitId()).build();
         AppOpenAd.load(
-                context,
-                config.getAppOpenAdUnitId(),
-                new AdRequest.Builder().build(),
-                new AppOpenAd.AppOpenAdLoadCallback() {
+                adRequest,
+                new AdLoadCallback<AppOpenAd>() {
                     @Override
                     public void onAdLoaded(@NonNull AppOpenAd ad) {
-                        appOpenAd = ad;
-                        lastLoadTimestamp = System.currentTimeMillis();
-                        isLoading.set(false);
-                        Log.i(SdkGate.TAG, "✅ AppOpenManager - Cached new App Open ad.");
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            appOpenAd = ad;
+                            lastLoadTimestamp = System.currentTimeMillis();
+                            isLoading.set(false);
+                            Log.i(SdkGate.TAG, "✅ AppOpenManager - Cached new App Open ad.");
+                        });
                     }
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        isLoading.set(false);
-                        Log.w(SdkGate.TAG, "❌ AppOpenManager - Failed to cache App Open ad: " + loadAdError.getMessage());
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            isLoading.set(false);
+                            Log.w(SdkGate.TAG, "❌ AppOpenManager - Failed to cache App Open ad: " + loadAdError.getMessage());
+                        });
                     }
                 }
         );
@@ -156,45 +158,51 @@ public final class AppOpenManager {
             return;
         }
 
-        ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+        ad.setAdEventCallback(new AppOpenAdEventCallback() {
             @Override
             public void onAdShowedFullScreenContent() {
-                isShowing.set(true);
-                OpenAdVisibilityControl control = visibilityControlRef != null ? visibilityControlRef.get() : null;
-                if (control != null) {
-                    control.hideBannerAd();
-                }
-                Log.i(SdkGate.TAG, "✅ AppOpenManager - Showing App Open ad.");
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    isShowing.set(true);
+                    OpenAdVisibilityControl control = visibilityControlRef != null ? visibilityControlRef.get() : null;
+                    if (control != null) {
+                        control.hideBannerAd();
+                    }
+                    Log.i(SdkGate.TAG, "✅ AppOpenManager - Showing App Open ad.");
+                });
             }
 
             @Override
             public void onAdDismissedFullScreenContent() {
-                OpenAdVisibilityControl control = visibilityControlRef != null ? visibilityControlRef.get() : null;
-                if (control != null) {
-                    control.showBannerAd();
-                }
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    OpenAdVisibilityControl control = visibilityControlRef != null ? visibilityControlRef.get() : null;
+                    if (control != null) {
+                        control.showBannerAd();
+                    }
 
-                appOpenAd = null;
-                isShowing.set(false);
-                lastShowTimestamp = System.currentTimeMillis();
-                Log.i(SdkGate.TAG, "✅ AppOpenManager - App Open ad dismissed.");
+                    appOpenAd = null;
+                    isShowing.set(false);
+                    lastShowTimestamp = System.currentTimeMillis();
+                    Log.i(SdkGate.TAG, "✅ AppOpenManager - App Open ad dismissed.");
 
-                mainHandler.postDelayed(
-                        () -> requestPreload(activity.getApplicationContext()),
-                        config.getAppOpenCooldownMs()
-                );
+                    AppExecutors.getInstance().mainThread().postDelayed(
+                            () -> requestPreload(activity.getApplicationContext()),
+                            config.getAppOpenCooldownMs()
+                    );
+                });
             }
 
             @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                OpenAdVisibilityControl control = visibilityControlRef != null ? visibilityControlRef.get() : null;
-                if (control != null) {
-                    control.showBannerAd();
-                }
+            public void onAdFailedToShowFullScreenContent(@NonNull FullScreenContentError fullScreenContentError) {
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    OpenAdVisibilityControl control = visibilityControlRef != null ? visibilityControlRef.get() : null;
+                    if (control != null) {
+                        control.showBannerAd();
+                    }
 
-                appOpenAd = null;
-                isShowing.set(false);
-                Log.w(SdkGate.TAG, "❌ AppOpenManager - Failed to show App Open ad: " + adError.getMessage());
+                    appOpenAd = null;
+                    isShowing.set(false);
+                    Log.w(SdkGate.TAG, "❌ AppOpenManager - Failed to show App Open ad: " + fullScreenContentError.getMessage());
+                });
             }
         });
 

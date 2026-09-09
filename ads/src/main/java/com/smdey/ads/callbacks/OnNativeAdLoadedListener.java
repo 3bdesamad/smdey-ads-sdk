@@ -2,7 +2,7 @@ package com.smdey.ads.callbacks;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd;
 
 /**
  * Listener invoked when a Native Ad is loaded or fails to load.

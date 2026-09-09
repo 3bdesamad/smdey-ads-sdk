@@ -14,13 +14,14 @@ import android.view.WindowMetrics;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.ads.mediation.admob.AdMobAdapter;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize;
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView;
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd;
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
 import com.smdey.ads.core.AdsConfig;
+import com.smdey.ads.core.AppExecutors;
 import com.smdey.ads.core.LifecycleGuard;
 import com.smdey.ads.core.SdkGate;
 
@@ -162,21 +163,57 @@ public final class BannerManager {
         }
 
         // Recreate AdView with Activity context (required for Collapsible Banner window anchoring)
-        recreateAdView(activity, isCollapsible);
+        recreateAdView(activity);
         attachToContainer(container);
 
-        AdRequest.Builder requestBuilder = new AdRequest.Builder();
+        AdSize bannerSize = getBannerAdSize(activity);
+        String adUnitId = config.getBannerAdUnitId(isCollapsible);
+        if (adUnitId == null) {
+            loading.set(false);
+            callback.onBannerHidden();
+            return;
+        }
+
+        BannerAdRequest.Builder requestBuilder = new BannerAdRequest.Builder(adUnitId, bannerSize);
         if (isCollapsible || config.isCollapsibleBannerEnabled()) {
             Bundle extras = new Bundle();
             extras.putString("collapsible", config.getCollapsibleGravity());
             extras.putString("collapsible_request_id", UUID.randomUUID().toString());
-            requestBuilder.addNetworkExtrasBundle(AdMobAdapter.class, extras);
+            requestBuilder.setGoogleExtrasBundle(extras);
             Log.i(SdkGate.TAG, "⚡ BannerManager - Requesting collapsible banner (" + config.getCollapsibleGravity() + ").");
         }
 
         if (currentAdView != null) {
-            currentAdView.loadAd(requestBuilder.build());
+            BannerAdRequest adRequest = requestBuilder.build();
             Log.i(SdkGate.TAG, "⏳ BannerManager - Loading banner ad...");
+            currentAdView.loadAd(adRequest, new AdLoadCallback<BannerAd>() {
+                @Override
+                public void onAdLoaded(@NonNull BannerAd bannerAd) {
+                    AppExecutors.getInstance().mainThread().execute(() -> {
+                        bannerLoaded = true;
+                        loading.set(false);
+                        attachToCurrentContainer();
+                        HostCallback cb = getCurrentCallback();
+                        if (cb != null) {
+                            cb.onBannerLoaded();
+                        }
+                        Log.i(SdkGate.TAG, "✅ BannerManager - " + (isCollapsible ? "Collapsible banner" : "Banner") + " loaded successfully.");
+                    });
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    AppExecutors.getInstance().mainThread().execute(() -> {
+                        bannerLoaded = false;
+                        loading.set(false);
+                        HostCallback cb = getCurrentCallback();
+                        if (cb != null) {
+                            cb.onBannerFailed();
+                        }
+                        Log.w(SdkGate.TAG, "❌ BannerManager - Failed to load banner: " + loadAdError.getMessage());
+                    });
+                }
+            });
         } else {
             loading.set(false);
         }
@@ -200,6 +237,7 @@ public final class BannerManager {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     private AdSize getBannerAdSize(@NonNull Activity activity) {
         try {
             DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
@@ -225,6 +263,7 @@ public final class BannerManager {
                 adWidth = 320;
             }
 
+            // Preserves classic compact 50-60dp anchored adaptive banner height
             return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity, adWidth);
         } catch (Exception e) {
             Log.e(SdkGate.TAG, "❌ BannerManager - Error determining adaptive size.", e);
@@ -241,37 +280,11 @@ public final class BannerManager {
         }
     }
 
-    private void recreateAdView(@NonNull Activity activity, boolean isCollapsible) {
+    private void recreateAdView(@NonNull Activity activity) {
         destroyBanner();
 
         currentAdView = new AdView(activity);
-        currentAdView.setAdUnitId(config.getBannerAdUnitId(isCollapsible));
-        currentAdView.setAdSize(getBannerAdSize(activity));
         currentAdView.setBackgroundColor(Color.TRANSPARENT);
-        currentAdView.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                bannerLoaded = true;
-                loading.set(false);
-                attachToCurrentContainer();
-                HostCallback callback = getCurrentCallback();
-                if (callback != null) {
-                    callback.onBannerLoaded();
-                }
-                Log.i(SdkGate.TAG, "✅ BannerManager - " + (isCollapsible ? "Collapsible banner" : "Banner") + " loaded successfully.");
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                bannerLoaded = false;
-                loading.set(false);
-                HostCallback callback = getCurrentCallback();
-                if (callback != null) {
-                    callback.onBannerFailed();
-                }
-                Log.w(SdkGate.TAG, "❌ BannerManager - Failed to load banner: " + loadAdError.getMessage());
-            }
-        });
     }
 
     private void attachToCurrentContainer() {
