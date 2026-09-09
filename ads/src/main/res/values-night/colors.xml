@@ -16,4 +16,5 @@
     <color name="ads_native_body">#98A4B9</color>
     <color name="ads_native_cta_bg">#005AB5</color>
     <color name="ads_native_cta_text">#FFFFFF</color>
+    <color name="ads_native_cta_ripple">#33FFFFFF</color>
 </resources>

@@ -7,7 +7,7 @@
     android:minHeight="?attr/actionBarSize"
     app:contentInsetStart="0dp"
     app:contentInsetStartWithNavigation="0dp"
-    app:theme="@style/toolbarBackColor"
+    android:theme="@style/toolbarBackColor"
     app:title="@string/app_name"
     app:titleCentered="true"
     app:titleTextAppearance="@style/toolbarAppearance" />

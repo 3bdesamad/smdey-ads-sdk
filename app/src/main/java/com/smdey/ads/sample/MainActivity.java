@@ -1,12 +1,12 @@
 package com.smdey.ads.sample;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.SystemBarStyle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -47,7 +47,16 @@ public class MainActivity extends AppCompatActivity implements OpenAdVisibilityC
             Insets insets = windowInsets.getInsets(
                     WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
             );
-            // Apply top status bar inset directly to the toolbar so blue background seamlessly fills behind status bar
+
+            // Maintain exact 56dp action bar content height plus status bar inset
+            int actionBarHeight = getActionBarHeight();
+            ViewGroup.LayoutParams lp = binding.incToolbar.toolbar.getLayoutParams();
+            if (lp != null) {
+                lp.height = insets.top + actionBarHeight;
+                binding.incToolbar.toolbar.setLayoutParams(lp);
+            }
+
+            // Apply top status bar inset directly to the toolbar so background seamlessly fills behind status bar
             binding.incToolbar.toolbar.setPadding(
                     binding.incToolbar.toolbar.getPaddingLeft(),
                     insets.top,
@@ -58,6 +67,14 @@ public class MainActivity extends AppCompatActivity implements OpenAdVisibilityC
             binding.getRoot().setPadding(insets.left, 0, insets.right, insets.bottom);
             return WindowInsetsCompat.CONSUMED;
         });
+    }
+
+    private int getActionBarHeight() {
+        TypedValue tv = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            return TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        }
+        return (int) (56 * getResources().getDisplayMetrics().density);
     }
 
     private void initListeners() {

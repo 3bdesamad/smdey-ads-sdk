@@ -99,7 +99,7 @@
             android:textStyle="bold"
             app:backgroundTint="@color/ads_native_cta_bg"
             app:cornerRadius="@dimen/ads_native_cta_radius"
-            app:rippleColor="#33FFFFFF" />
+            app:rippleColor="@color/ads_native_cta_ripple" />
 
     </LinearLayout>
 

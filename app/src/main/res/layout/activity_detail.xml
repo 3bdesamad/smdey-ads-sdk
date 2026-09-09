@@ -38,7 +38,7 @@
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="4dp"
                 android:text="This screen demonstrates how a fresh Activity triggers and displays a high-impact Collapsible Banner at the bottom.\n\nWhen loaded, the banner expands upward to capture user engagement, and automatically collapses into a normal 50dp banner without obstructing content."
-                android:textColor="#555555"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="14sp" />
 
             <Button

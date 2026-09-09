@@ -26,6 +26,10 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs << "-Xlint:deprecation"
+    }
+
     publishing {
         singleVariant('release') {
             withSourcesJar()
@@ -37,7 +41,6 @@ dependencies {
     // Material 3 Components
     api 'com.google.android.material:material:1.14.0'
     implementation 'androidx.lifecycle:lifecycle-process:2.11.0'
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.11.0'
 
     // Google Mobile Ads (GMA Next-Gen) & UMP SDK
     api 'com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.4.0'
