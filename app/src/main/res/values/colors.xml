@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================================== -->
+    <!-- Main App Brand Palette (Single Source of Truth)                 -->
+    <!-- ============================================================== -->
+    <color name="app_primary">#2196F3</color>
+    <color name="app_on_primary">#FFFFFF</color>
+    <color name="app_background">#F8F9FA</color>
+    <color name="app_surface">#FFFFFF</color>
+    <color name="app_surface_variant">#E3E9EC</color>
+    <color name="app_text_primary">#1C1B1F</color>
+    <color name="app_text_secondary">#4C6565</color>
+    <color name="app_outline">#EEF3F7</color>
+    <color name="app_badge_bg">#FFB703</color>
+    <color name="app_badge_text">#000000</color>
+
+    <!-- ============================================================== -->
+    <!-- SDK Color Overrides (Light Mode)                               -->
+    <!-- Linked to App Palette to prevent duplicate hex definitions     -->
+    <!-- ============================================================== -->
+
+    <!-- Dialog Loading Colors -->
+    <color name="ads_dialog_bg">@color/app_background</color>
+    <color name="ads_dialog_text_title">@color/app_text_primary</color>
+    <color name="ads_dialog_text_subtitle">@color/app_text_secondary</color>
+    <color name="ads_accent">@color/app_primary</color>
+    <color name="ads_skeleton_bg">@color/app_surface_variant</color>
+
+    <!-- Native Ad Colors -->
+    <color name="ads_native_card_bg">@color/app_surface</color>
+    <color name="ads_native_card_stroke">@color/app_outline</color>
+    <color name="ads_native_badge_bg">@color/app_badge_bg</color>
+    <color name="ads_native_badge_text">@color/app_badge_text</color>
+    <color name="ads_native_headline">@color/app_text_primary</color>
+    <color name="ads_native_body">@color/app_text_secondary</color>
+    <color name="ads_native_btn_bg">@color/app_primary</color>
+    <color name="ads_native_btn_text">@color/app_on_primary</color>
+    <color name="ads_native_btn_ripple">#33FFFFFF</color>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================================== -->
+    <!-- Generic Dimension Scale (Single Source of Truth)                -->
+    <!-- ============================================================== -->
+    <dimen name="dimen_6">6dp</dimen>
+    <dimen name="dimen_8">8dp</dimen>
+    <dimen name="dimen_10">10dp</dimen>
+    <dimen name="dimen_12">12dp</dimen>
+    <dimen name="dimen_24">24dp</dimen>
+    <dimen name="dimen_32">32dp</dimen>
+    <dimen name="dimen_40">40dp</dimen>
+    <dimen name="dimen_60">60dp</dimen>
+    <dimen name="dimen_72">72dp</dimen>
+    <dimen name="dimen_136">136dp</dimen>
+
+    <!-- ============================================================== -->
+    <!-- SDK Dimension Overrides                                        -->
+    <!-- Reusing generic dimension scale (DRY - 0 duplicate numbers)    -->
+    <!-- ============================================================== -->
+
+    <!-- Dialog Loading Dimensions -->
+    <dimen name="ads_dialog_padding_h">@dimen/dimen_24</dimen>
+    <dimen name="ads_dialog_padding_v">@dimen/dimen_32</dimen>
+    <dimen name="ads_dialog_margin_h">@dimen/dimen_40</dimen>
+
+    <!-- Banner Ad Dimensions -->
+    <dimen name="ads_banner_skeleton_height">@dimen/dimen_60</dimen>
+    <dimen name="ads_banner_padding">@dimen/dimen_10</dimen>
+
+    <!-- Native Ad Dimensions -->
+    <dimen name="ads_native_card_radius">@dimen/dimen_10</dimen>
+    <dimen name="ads_native_badge_radius">@dimen/dimen_6</dimen>
+    <dimen name="ads_native_btn_radius">@dimen/dimen_8</dimen>
+    <dimen name="ads_native_padding">@dimen/dimen_12</dimen>
+    <dimen name="ads_native_small_height">@dimen/dimen_72</dimen>
+    <dimen name="ads_native_medium_height">@dimen/dimen_136</dimen>
+</resources>

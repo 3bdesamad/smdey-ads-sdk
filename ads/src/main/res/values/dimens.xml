@@ -9,7 +9,7 @@
     <!-- Native Ad Dimens -->
     <dimen name="ads_native_card_radius">10dp</dimen>
     <dimen name="ads_native_badge_radius">6dp</dimen>
-    <dimen name="ads_native_cta_radius">8dp</dimen>
+    <dimen name="ads_native_btn_radius">8dp</dimen>
     <dimen name="ads_native_padding">12dp</dimen>
     <dimen name="ads_native_small_height">72dp</dimen>
     <dimen name="ads_native_medium_height">136dp</dimen>

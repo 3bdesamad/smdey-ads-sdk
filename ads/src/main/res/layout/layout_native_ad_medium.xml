@@ -108,12 +108,12 @@
             android:insetBottom="0dp"
             android:paddingHorizontal="16dp"
             android:paddingVertical="0dp"
-            android:textColor="@color/ads_native_cta_text"
+            android:textColor="@color/ads_native_btn_text"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/ads_native_cta_bg"
-            app:cornerRadius="@dimen/ads_native_cta_radius"
-            app:rippleColor="@color/ads_native_cta_ripple" />
+            app:backgroundTint="@color/ads_native_btn_bg"
+            app:cornerRadius="@dimen/ads_native_btn_radius"
+            app:rippleColor="@color/ads_native_btn_ripple" />
 
     </LinearLayout>
 
