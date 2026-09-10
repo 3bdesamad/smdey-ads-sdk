@@ -1,8 +1,16 @@
 package com.smdey.ads.managers;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,18 +21,23 @@ import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
 import com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAdEventCallback;
+import com.smdey.ads.R;
 import com.smdey.ads.callbacks.AdsCallback;
+import com.smdey.ads.callbacks.IntroDialogProvider;
+import com.smdey.ads.callbacks.LoadingDialogProvider;
 import com.smdey.ads.callbacks.OnUserEarnedRewardListener;
 import com.smdey.ads.callbacks.RewardItem;
 import com.smdey.ads.core.AdsConfig;
 import com.smdey.ads.core.AppExecutors;
 import com.smdey.ads.core.LifecycleGuard;
 import com.smdey.ads.core.SdkGate;
+import com.smdey.ads.utils.LoadingDialogHelper;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Manages Google Rewarded Interstitial Ads loading, presentation, and lifecycle safety.
+ * Manages Google Rewarded Interstitial Ads loading, presentation, Google policy-compliant
+ * introductory screen, loading fallback, and lifecycle safety.
  */
 public final class RewardedInterstitialManager {
 
@@ -32,6 +45,8 @@ public final class RewardedInterstitialManager {
         void onAdLoaded();
         void onAdFailedToLoad();
     }
+
+    private static final long DEFAULT_LOADING_TIMEOUT_MS = 6000L;
 
     private final SdkGate sdkGate;
     private final AdsConfig config;
@@ -41,6 +56,17 @@ public final class RewardedInterstitialManager {
     private volatile boolean adsRemoved = false;
     private OnLoadListener activeListener;
     private AdsCallback currentDismissCallback;
+
+    @Nullable
+    private Dialog loadingDialog;
+    @Nullable
+    private Dialog introDialog;
+    @Nullable
+    private Runnable loadingTimeoutRunnable;
+    @Nullable
+    private LoadingDialogProvider customLoadingDialogProvider;
+    @Nullable
+    private IntroDialogProvider customIntroDialogProvider;
 
     public RewardedInterstitialManager(@NonNull SdkGate sdkGate) {
         this.sdkGate = sdkGate;
@@ -58,8 +84,20 @@ public final class RewardedInterstitialManager {
         return adsRemoved;
     }
 
+    public void setCustomLoadingDialogProvider(@Nullable LoadingDialogProvider provider) {
+        this.customLoadingDialogProvider = provider;
+    }
+
+    public void setCustomIntroDialogProvider(@Nullable IntroDialogProvider provider) {
+        this.customIntroDialogProvider = provider;
+    }
+
     public boolean isAdReady() {
         return !adsRemoved && rewardedInterstitialAd != null;
+    }
+
+    public boolean isLoading() {
+        return loading.get();
     }
 
     public void preloadAd(@NonNull Context context) {
@@ -69,7 +107,7 @@ public final class RewardedInterstitialManager {
         if (rewardedInterstitialAd != null || loading.get()) {
             return;
         }
-        loadAd(context, null);
+        loadAd(context.getApplicationContext(), null);
     }
 
     public void loadAd(@NonNull Context context, @Nullable OnLoadListener listener) {
@@ -155,6 +193,117 @@ public final class RewardedInterstitialManager {
         );
     }
 
+    /**
+     * Presents a Google Policy-Compliant Introductory Screen before showing the Rewarded Interstitial ad.
+     * The user is informed of the reward and given an unobstructed option to Skip ("No Thanks").
+     */
+    public void showWithIntroDialog(@NonNull Activity activity,
+                                    @NonNull String rewardDescription,
+                                    @NonNull OnUserEarnedRewardListener rewardListener,
+                                    @Nullable AdsCallback dismissCallback) {
+        if (!LifecycleGuard.isActivityValid(activity)) {
+            if (dismissCallback != null) dismissCallback.onAction();
+            return;
+        }
+
+        if (adsRemoved || !config.isRewardedInterstitialEnabled() || config.getRewardedInterstitialAdUnitId() == null) {
+            if (dismissCallback != null) dismissCallback.onAction();
+            return;
+        }
+
+        dismissIntroDialog();
+
+        Runnable onWatch = () -> {
+            dismissIntroDialog();
+            showAdWithLoading(activity, rewardListener, dismissCallback, dismissCallback);
+        };
+
+        Runnable onSkip = () -> {
+            dismissIntroDialog();
+            Log.i(SdkGate.TAG, "ℹ️ RewardedInterstitial - User opted out of watching rewarded ad.");
+            if (dismissCallback != null) {
+                dismissCallback.onAction();
+            }
+        };
+
+        if (customIntroDialogProvider != null) {
+            introDialog = customIntroDialogProvider.createIntroDialog(activity, rewardDescription, onWatch, onSkip);
+        }
+
+        if (introDialog == null) {
+            introDialog = createDefaultIntroDialog(activity, rewardDescription, onWatch, onSkip);
+        }
+
+        try {
+            if (introDialog != null && LifecycleGuard.isActivityValid(activity)) {
+                introDialog.show();
+            } else {
+                onWatch.run();
+            }
+        } catch (Exception e) {
+            Log.e(SdkGate.TAG, "❌ RewardedInterstitial - Error showing intro dialog: " + e.getMessage());
+            onWatch.run();
+        }
+    }
+
+    public void showAdWithLoading(@NonNull Activity activity,
+                                  @NonNull OnUserEarnedRewardListener rewardListener,
+                                  @Nullable AdsCallback dismissCallback,
+                                  @Nullable AdsCallback failCallback) {
+        if (!LifecycleGuard.isActivityValid(activity)) {
+            if (failCallback != null) failCallback.onAction();
+            return;
+        }
+
+        if (adsRemoved || !config.isRewardedInterstitialEnabled() || config.getRewardedInterstitialAdUnitId() == null) {
+            if (failCallback != null) failCallback.onAction();
+            return;
+        }
+
+        // Fast path: Ad is already pre-cached -> 0ms instant display without loading dialog
+        if (isAdReady()) {
+            Log.i(SdkGate.TAG, "⚡ RewardedInterstitial - Ad is preloaded. Presenting instantly.");
+            showAd(activity, rewardListener, dismissCallback);
+            return;
+        }
+
+        // Cache-miss fallback: show loading dialog with timeout safeguard while fetching
+        showLoadingDialog(activity);
+        scheduleOverlayTimeout(() -> {
+            dismissLoadingDialog();
+            Log.w(SdkGate.TAG, "⏳ RewardedInterstitial - Timed out waiting for ad to load.");
+            if (failCallback != null) {
+                failCallback.onAction();
+            }
+        });
+
+        loadAd(activity, new OnLoadListener() {
+            @Override
+            public void onAdLoaded() {
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    cancelOverlayTimeout();
+                    dismissLoadingDialog();
+                    if (LifecycleGuard.isActivityValid(activity)) {
+                        showAd(activity, rewardListener, dismissCallback);
+                    } else if (failCallback != null) {
+                        failCallback.onAction();
+                    }
+                });
+            }
+
+            @Override
+            public void onAdFailedToLoad() {
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    cancelOverlayTimeout();
+                    dismissLoadingDialog();
+                    if (failCallback != null) {
+                        failCallback.onAction();
+                    }
+                });
+            }
+        });
+    }
+
     public void showAd(@NonNull Activity activity, @NonNull OnUserEarnedRewardListener rewardListener) {
         showAd(activity, rewardListener, null);
     }
@@ -225,6 +374,8 @@ public final class RewardedInterstitialManager {
                     if (callback != null) {
                         callback.onAction();
                     }
+                    // Auto-preload the next rewarded interstitial in background
+                    preloadAd(sdkGate.getAppContext());
                 });
             }
 
@@ -238,9 +389,80 @@ public final class RewardedInterstitialManager {
                     if (callback != null) {
                         callback.onAction();
                     }
+                    preloadAd(sdkGate.getAppContext());
                 });
             }
         });
+    }
+
+    @NonNull
+    private Dialog createDefaultIntroDialog(@NonNull Activity activity,
+                                            @NonNull String rewardDescription,
+                                            @NonNull Runnable onWatchSelected,
+                                            @NonNull Runnable onSkipSelected) {
+        Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        View view = LayoutInflater.from(activity).inflate(R.layout.dialog_rewarded_interstitial_intro, null);
+        dialog.setContentView(view);
+        dialog.setCancelable(false);
+
+        LoadingDialogHelper.setupDialogWindowBounds(dialog, activity);
+
+        TextView tvReward = view.findViewById(R.id.tv_intro_reward);
+        View btnSkip = view.findViewById(R.id.btn_skip);
+        View btnWatch = view.findViewById(R.id.btn_watch);
+
+        if (tvReward != null) {
+            tvReward.setText(rewardDescription);
+        }
+
+        if (btnSkip != null) {
+            btnSkip.setOnClickListener(v -> {
+                try {
+                    dialog.dismiss();
+                } catch (Exception ignored) {}
+                onSkipSelected.run();
+            });
+        }
+
+        if (btnWatch != null) {
+            btnWatch.setOnClickListener(v -> {
+                try {
+                    dialog.dismiss();
+                } catch (Exception ignored) {}
+                onWatchSelected.run();
+            });
+        }
+
+        return dialog;
+    }
+
+    private void showLoadingDialog(@NonNull Activity activity) {
+        dismissLoadingDialog();
+        loadingDialog = LoadingDialogHelper.showLoadingDialog(activity, customLoadingDialogProvider);
+    }
+
+    private void dismissLoadingDialog() {
+        LoadingDialogHelper.dismissSafely(loadingDialog);
+        loadingDialog = null;
+    }
+
+    private void dismissIntroDialog() {
+        LoadingDialogHelper.dismissSafely(introDialog);
+        introDialog = null;
+    }
+
+    private void scheduleOverlayTimeout(@NonNull Runnable onTimeout) {
+        cancelOverlayTimeout();
+        loadingTimeoutRunnable = onTimeout;
+        AppExecutors.getInstance().mainThread().postDelayed(loadingTimeoutRunnable, DEFAULT_LOADING_TIMEOUT_MS);
+    }
+
+    private void cancelOverlayTimeout() {
+        if (loadingTimeoutRunnable != null) {
+            AppExecutors.getInstance().mainThread().removeCallbacks(loadingTimeoutRunnable);
+            loadingTimeoutRunnable = null;
+        }
     }
 
     private void notifySuccess() {

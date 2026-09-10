@@ -3,6 +3,7 @@ package com.smdey.ads.sample;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -97,44 +98,38 @@ public class MainActivity extends AppCompatActivity implements OpenAdVisibilityC
         });
 
         binding.btnRewarded.setOnClickListener(v -> {
-            binding.tvStatus.setText("Status: Loading Rewarded Ad...");
-            AdsFacade.getInstance().rewarded().loadAd(this, new com.smdey.ads.managers.RewardedManager.OnLoadListener() {
-                @Override
-                public void onAdLoaded() {
-                    AdsFacade.getInstance().rewarded().showAd(MainActivity.this, rewardItem -> {
+            binding.tvStatus.setText("Status: Requesting Rewarded Ad...");
+            AdsFacade.getInstance().rewarded().showRewardAdWithLoading(
+                    this,
+                    rewardItem -> {
                         if (binding == null) return;
                         binding.tvStatus.setText("Status: User earned reward: " + rewardItem.getAmount() + " " + rewardItem.getType());
-                    });
-                }
-
-                @Override
-                public void onAdFailedToLoad() {
-                    if (binding == null) return;
-                    binding.tvStatus.setText("Status: Failed to load Rewarded Ad.");
-                }
-            });
+                    },
+                    () -> {
+                        if (binding == null) return;
+                        Toast.makeText(MainActivity.this, "Rewarded Ad closed.", Toast.LENGTH_SHORT).show();
+                    },
+                    () -> {
+                        if (binding == null) return;
+                        binding.tvStatus.setText("Status: Failed or timed out loading Rewarded Ad.");
+                    }
+            );
         });
 
         binding.btnRewardedInterstitial.setOnClickListener(v -> {
-            binding.tvStatus.setText("Status: Loading Rewarded Interstitial Ad...");
-            AdsFacade.getInstance().rewardedInterstitial().loadAd(this, new com.smdey.ads.managers.RewardedInterstitialManager.OnLoadListener() {
-                @Override
-                public void onAdLoaded() {
-                    AdsFacade.getInstance().rewardedInterstitial().showAd(MainActivity.this, rewardItem -> {
+            binding.tvStatus.setText("Status: Opening Rewarded Interstitial intro...");
+            AdsFacade.getInstance().rewardedInterstitial().showWithIntroDialog(
+                    this,
+                    "100 Gold Coins",
+                    rewardItem -> {
                         if (binding == null) return;
                         binding.tvStatus.setText("Status: User earned reward: " + rewardItem.getAmount() + " " + rewardItem.getType());
-                    }, () -> {
+                    },
+                    () -> {
                         if (binding == null) return;
-                        Toast.makeText(MainActivity.this, "Rewarded Interstitial closed.", Toast.LENGTH_SHORT).show();
-                    });
-                }
-
-                @Override
-                public void onAdFailedToLoad() {
-                    if (binding == null) return;
-                    binding.tvStatus.setText("Status: Failed to load Rewarded Interstitial Ad.");
-                }
-            });
+                        Toast.makeText(MainActivity.this, "Rewarded Interstitial flow finished.", Toast.LENGTH_SHORT).show();
+                    }
+            );
         });
 
         binding.btnRefreshNative.setOnClickListener(v -> {
@@ -150,16 +145,24 @@ public class MainActivity extends AppCompatActivity implements OpenAdVisibilityC
             });
         });
 
+        binding.btnOpenNormalBanner.setOnClickListener(v -> {
+            binding.tvStatus.setText("Status: Navigating to Normal Banner screen...");
+            startActivity(new Intent(MainActivity.this, NormalBannerActivity.class));
+        });
+
         binding.btnToggleRemoveAds.setOnClickListener(v -> {
             isAdsRemoved = !isAdsRemoved;
             AdsFacade.getInstance().setAdsRemoved(isAdsRemoved);
             binding.tvStatus.setText("Status: Ads Removed = " + isAdsRemoved);
             if (isAdsRemoved) {
-                binding.smartNativeSmall.setVisibility(android.view.View.GONE);
-                binding.smartNativeMedium.setVisibility(android.view.View.GONE);
+                binding.smartBanner.setVisibility(View.GONE);
+                binding.smartNativeSmall.setVisibility(View.GONE);
+                binding.smartNativeMedium.setVisibility(View.GONE);
             } else {
-                binding.smartNativeSmall.setVisibility(android.view.View.VISIBLE);
-                binding.smartNativeMedium.setVisibility(android.view.View.VISIBLE);
+                binding.smartBanner.setVisibility(View.VISIBLE);
+                binding.smartBanner.loadAd();
+                binding.smartNativeSmall.setVisibility(View.VISIBLE);
+                binding.smartNativeMedium.setVisibility(View.VISIBLE);
                 binding.smartNativeSmall.loadAd();
                 binding.smartNativeMedium.loadAd();
             }

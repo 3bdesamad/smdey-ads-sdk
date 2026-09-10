@@ -31,6 +31,7 @@ import com.smdey.ads.core.AdsConfig;
 import com.smdey.ads.core.AppExecutors;
 import com.smdey.ads.core.LifecycleGuard;
 import com.smdey.ads.core.SdkGate;
+import com.smdey.ads.utils.LoadingDialogHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -323,62 +324,12 @@ public final class InterstitialManager {
 
     private void showLoadingDialog(@NonNull Activity activity) {
         dismissLoadingDialog();
-
-        if (customDialogProvider != null) {
-            loadingDialog = customDialogProvider.createLoadingDialog(activity);
-        }
-
-        if (loadingDialog == null) {
-            loadingDialog = createDefaultLoadingDialog(activity);
-        }
-
-        try {
-            if (loadingDialog != null) {
-                loadingDialog.show();
-            }
-        } catch (Exception e) {
-            Log.e(SdkGate.TAG, "❌ Interstitial - Error showing loading dialog.", e);
-            loadingDialog = null;
-        }
-    }
-
-    private Dialog createDefaultLoadingDialog(@NonNull Activity activity) {
-        Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        View view = LayoutInflater.from(activity).inflate(R.layout.dialog_loading_ad, null);
-        dialog.setContentView(view);
-        dialog.setCancelable(false);
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-
-            int marginPx = activity.getResources().getDimensionPixelSize(R.dimen.ads_dialog_margin_h);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-            params.leftMargin = marginPx;
-            params.rightMargin = marginPx;
-            params.setMarginStart(marginPx);
-            params.setMarginEnd(marginPx);
-            params.gravity = Gravity.CENTER;
-            view.setLayoutParams(params);
-        }
-        return dialog;
+        loadingDialog = LoadingDialogHelper.showLoadingDialog(activity, customDialogProvider);
     }
 
     private void dismissLoadingDialog() {
-        if (loadingDialog != null) {
-            try {
-                if (loadingDialog.isShowing()) {
-                    loadingDialog.dismiss();
-                }
-            } catch (Exception ignored) {
-            }
-            loadingDialog = null;
-        }
+        LoadingDialogHelper.dismissSafely(loadingDialog);
+        loadingDialog = null;
     }
 
     private void scheduleOverlayTimeout() {

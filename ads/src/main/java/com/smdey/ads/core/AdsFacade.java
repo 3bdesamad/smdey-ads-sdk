@@ -131,6 +131,7 @@ public final class AdsFacade {
         this.bannerManager.setAdsRemoved(adsRemoved);
         this.interstitialManager.setAdsRemoved(adsRemoved);
         this.appOpenManager.setAdsRemoved(adsRemoved);
+        this.rewardedManager.setAdsRemoved(adsRemoved);
         this.rewardedInterstitialManager.setAdsRemoved(adsRemoved);
         this.nativeManager.setAdsRemoved(adsRemoved);
     }
@@ -155,6 +156,10 @@ public final class AdsFacade {
     public void markStartupStable(@NonNull Activity activity) {
         sdkGate.markStartupStable(activity);
         appOpenManager.scheduleFirstPreload(activity);
+        if (!adsRemoved) {
+            rewardedManager.preloadAd(activity);
+            rewardedInterstitialManager.preloadAd(activity);
+        }
     }
 
     public void ensureConsentThenRun(@NonNull Activity activity, @NonNull Runnable action) {

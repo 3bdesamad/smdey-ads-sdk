@@ -21,7 +21,6 @@
     <color name="ads_dialog_bg">@color/app_background</color>
     <color name="ads_dialog_text_title">@color/app_text_primary</color>
     <color name="ads_dialog_text_subtitle">@color/app_text_secondary</color>
-    <color name="ads_accent">@color/app_primary</color>
     <color name="ads_skeleton_bg">@color/app_surface_variant</color>
 
     <!-- Native Ad Colors -->

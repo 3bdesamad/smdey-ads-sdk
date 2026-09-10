@@ -62,6 +62,11 @@ public final class SdkGate {
         return config;
     }
 
+    @NonNull
+    public Context getAppContext() {
+        return appContext;
+    }
+
     public void ensureInitialized(@NonNull Activity activity, @Nullable Runnable onReady) {
         if (!LifecycleGuard.isActivityValid(activity)) {
             Log.d(TAG, "⚠️ SdkGate - Invalid activity. Skipping initialization.");

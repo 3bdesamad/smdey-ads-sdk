@@ -1,11 +1,21 @@
 package com.smdey.ads.sample;
 
+import android.app.Activity;
 import android.app.Application;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.smdey.ads.core.AdsConfig;
 import com.smdey.ads.core.AdsFacade;
 
-public class MyApplication extends Application {
+public class MyApplication extends Application implements Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
+
+    private Activity currentActivity;
 
     @Override
     public void onCreate() {
@@ -33,5 +43,45 @@ public class MyApplication extends Application {
 
         // 2. Initialize AdsFacade (Grace Period is automatically evaluated and handled internally)
         AdsFacade.init(this, config);
+
+        // 3. Register Activity tracker & foreground observer for App Open Ads
+        registerActivityLifecycleCallbacks(this);
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+
+    @Override
+    public void onStart(@NonNull LifecycleOwner owner) {
+        if (currentActivity != null) {
+            AdsFacade.getInstance().appOpen().showIfAvailable(currentActivity);
+        }
+    }
+
+    @Override
+    public void onActivityStarted(@NonNull Activity activity) {
+        this.currentActivity = activity;
+    }
+
+    @Override
+    public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {}
+
+    @Override
+    public void onActivityResumed(@NonNull Activity activity) {
+        this.currentActivity = activity;
+    }
+
+    @Override
+    public void onActivityPaused(@NonNull Activity activity) {}
+
+    @Override
+    public void onActivityStopped(@NonNull Activity activity) {}
+
+    @Override
+    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {}
+
+    @Override
+    public void onActivityDestroyed(@NonNull Activity activity) {
+        if (this.currentActivity == activity) {
+            this.currentActivity = null;
+        }
     }
 }

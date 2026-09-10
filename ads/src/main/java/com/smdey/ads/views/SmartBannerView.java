@@ -111,7 +111,11 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
         }
 
         setVisibility(VISIBLE);
-        showLoadingState();
+        if (bannerManager != null && bannerManager.isBannerLoaded() && !isCollapsible) {
+            attachOrLoadNow();
+        } else {
+            showLoadingState();
+        }
     }
 
     public void setBannerManager(@NonNull BannerManager bannerManager) {
@@ -231,6 +235,16 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
         }
 
         bannerManager.attachOrLoad(currentActivity, adContainer, isCollapsible, hostCallback);
+    }
+
+    public void loadAd() {
+        setVisibility(VISIBLE);
+        showLoadingState();
+        Activity activity = getActivity(getContext());
+        if (activity != null) {
+            applyDynamicHeight(activity);
+        }
+        attachOrLoadNow();
     }
 
     public void setCollapsible(boolean collapsible) {

@@ -27,6 +27,14 @@
         <activity
             android:name=".DetailActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".NormalBannerActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SecondNormalBannerActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

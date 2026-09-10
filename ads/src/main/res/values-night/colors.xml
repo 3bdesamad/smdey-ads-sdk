@@ -4,7 +4,6 @@
     <color name="ads_dialog_bg">#121A26</color>
     <color name="ads_dialog_text_title">#F3F6FA</color>
     <color name="ads_dialog_text_subtitle">#98A4B9</color>
-    <color name="ads_accent">#D0BCFF</color>
     <color name="ads_skeleton_bg">#2A3444</color>
 
     <!-- Native Ad Colors (Dark Mode Overrides) -->

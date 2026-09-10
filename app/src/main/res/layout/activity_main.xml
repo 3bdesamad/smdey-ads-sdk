@@ -66,7 +66,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Open Next Screen (Detail Activity)" />
+                android:text="Open Collapsible Banner Screen" />
+
+            <Button
+                android:id="@+id/btnOpenNormalBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Open Normal Banner Screen" />
 
             <Button
                 android:id="@+id/btnToggleRemoveAds"

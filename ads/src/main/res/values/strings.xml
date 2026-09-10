@@ -4,4 +4,10 @@
     <string name="ads_please_wait">Please wait a moment</string>
     <string name="ads_ad_badge">Ad</string>
     <string name="ads_install_now">Install</string>
+    <string name="ads_reward_intro_title">Reward Available</string>
+    <string name="ads_reward_intro_subtitle">Watch a short video to claim this reward:</string>
+    <string name="ads_reward_intro_countdown">Starting in %1$ds</string>
+    <string name="ads_reward_intro_watch">Watch Video</string>
+    <string name="ads_reward_intro_skip">No Thanks</string>
+    <string name="ads_reward_not_ready">Ad not ready yet, please try again.</string>
 </resources>

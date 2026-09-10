@@ -85,21 +85,20 @@
 
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/ad_call_to_action"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
+            android:background="@drawable/bg_native_btn"
             android:minWidth="72dp"
+            android:minHeight="0dp"
             android:paddingHorizontal="12dp"
             android:paddingVertical="0dp"
+            android:stateListAnimator="@null"
+            android:textAllCaps="false"
             android:textColor="@color/ads_native_btn_text"
             android:textSize="13sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/ads_native_btn_bg"
-            app:cornerRadius="@dimen/ads_native_btn_radius"
-            app:rippleColor="@color/ads_native_btn_ripple" />
+            android:textStyle="bold" />
 
     </LinearLayout>
 

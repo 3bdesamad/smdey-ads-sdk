@@ -47,6 +47,7 @@ public final class BannerManager {
 
     private volatile boolean adsRemoved = false;
     private volatile boolean bannerLoaded = false;
+    private volatile boolean currentIsCollapsible = false;
 
     private WeakReference<ViewGroup> currentContainerRef;
     private WeakReference<HostCallback> currentCallbackRef;
@@ -80,6 +81,13 @@ public final class BannerManager {
             if (callback != null) {
                 callback.onBannerHidden();
             }
+        } else {
+            Activity activity = currentActivityRef != null ? currentActivityRef.get() : null;
+            ViewGroup container = currentContainerRef != null ? currentContainerRef.get() : null;
+            HostCallback callback = getCurrentCallback();
+            if (activity != null && container != null && callback != null && LifecycleGuard.isActivityValid(activity)) {
+                attachOrLoad(activity, container, currentIsCollapsible, callback);
+            }
         }
     }
 
@@ -106,6 +114,7 @@ public final class BannerManager {
             return;
         }
 
+        this.currentIsCollapsible = isCollapsible;
         currentContainerRef = new WeakReference<>(container);
         currentCallbackRef = new WeakReference<>(callback);
 
@@ -124,10 +133,9 @@ public final class BannerManager {
             return;
         }
 
-        // If it's a collapsible banner, or if the Activity changed, we must do a fresh load with current Activity context
-        boolean shouldReload = isCollapsible || lastActivity != activity || currentAdView == null || !bannerLoaded;
-
-        if (!shouldReload && isBannerLoaded()) {
+        // For normal persistent banners, reuse the loaded banner across activities without reloading from network
+        if (!isCollapsible && isBannerLoaded()) {
+            Log.i(SdkGate.TAG, "⚡ BannerManager - Reusing loaded normal banner across activities without reloading.");
             attachToContainer(container);
             callback.onBannerLoaded();
             return;
@@ -160,6 +168,8 @@ public final class BannerManager {
         if (!loading.compareAndSet(false, true)) {
             return;
         }
+
+        callback.onBannerPending();
 
         // Recreate AdView with Activity context (required for Collapsible Banner window anchoring)
         recreateAdView(activity);
