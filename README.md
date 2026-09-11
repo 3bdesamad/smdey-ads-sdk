@@ -1,94 +1,322 @@
-# Smdey Ads SDK (Next-Gen)
+# Smdey Ads Android SDK 🚀
 
-A lightweight, high-performance, lifecycle-aware Google Mobile Ads (GMA) SDK wrapper for Android.
-Optimized for **low-end Android devices** with **zero main-thread blocking**, instant startup, automatic UMP consent handling, adaptive banner pooling, and full-screen ad coordination.
+A high-performance, lifecycle-safe, and low-end device optimized Google Mobile Ads (GMA Next-Gen 1.4.0) & UMP (GDPR) Consent library for Android.
 
----
-
-## Features
-
-- **🚀 Low-End Device Optimized:** Zero UI jank, zero allocations in hot paths, asynchronous SDK initialization.
-- **🛡️ Full-Screen Ad Coordinator:** Prevents duplicate ad overlaps and AdMob policy violations.
-- **🔄 Window Focus Guard:** Prevents Samsung OneUI / Android launcher transition ad collisions.
-- **⏱️ Configurable Cooldowns:** Full control over App Open cooldowns, preload delays, and loading dialog timeouts.
-- **🚫 Declarative Activity Exclusion:** Easily suppress App Open ads on specific screens (e.g., Splash, Settings, Paywalls).
-- **📋 Automatic UMP Consent Gathering:** Seamless integration with Google User Messaging Platform (GDPR/EEA).
-- **📱 Smart Adaptive Banner View:** Single shared AdView across activities with zero memory leaks.
+[![JitPack](https://img.shields.io/badge/JitPack-1.0.0-brightgreen.svg)](https://jitpack.io/#3bdesamad/smdey-ads-sdk)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![MinSdk](https://img.shields.io/badge/MinSdk-28-green.svg)](https://developer.android.com)
+[![TargetSdk](https://img.shields.io/badge/TargetSdk-37-brightgreen.svg)](https://developer.android.com)
+[![GMA Next-Gen](https://img.shields.io/badge/GMA_Next--Gen-1.4.0-blue.svg)](https://developers.google.com/admob/android/next-gen)
 
 ---
 
-## Installation (JitPack)
+## 🌟 Supported Ad Formats & Features
 
-### 1. Add repository to settings.gradle:
-`groovy
+- ⚡ **Cold-Start Protection (`SdkGate`)**: Defers SDK initialization off critical paths to ensure 60fps startup and zero UI freezes on low-end devices.
+- 🛡️ **Full-Screen Ad Coordinator**: Thread-safe synchronization preventing Interstitial, Rewarded, and App Open ads from colliding or showing concurrently.
+- ♻️ **Shared Banner View (`SmartBannerView`)**: Pooled, shared `AdView` reused across screens with dynamic adaptive height calculation, built-in Facebook Shimmer skeleton placeholders, and zero memory leaks.
+- ⏱️ **Debounced Interstitials & Frequency Clicks**: Frequency click counter (`showAdWithLoadingOverlayByClick`), smart pre-caching, and customizable loading overlay dialogs.
+- 🎁 **Standard Rewarded Ads**: User-triggered opt-in reward sessions with decoupled load and show callbacks.
+- 📱 **Lifecycle-Aware App Open Ads**: Automatic foreground detection via `ProcessLifecycleOwner`, configurable cooldown timer, startup preload delay, and window focus guard.
+- 🛡️ **Google UMP (GDPR) Ready**: European Economic Area (EEA) consent gathering and Privacy Options form management built-in.
+- 💎 **Dynamic In-App Purchase Provider**: Supply `.setAdsRemovedProvider(() -> isVipUser())` to instantly disable all ad requests and views across the app.
+- 🚫 **Declarative Activity Exclusion**: Easily suppress App Open ads on selected screens (e.g., Splash, Onboarding, Paywalls).
+
+---
+
+## 📦 Installation
+
+### 1. Add JitPack repository
+
+In your root `settings.gradle`:
+```groovy
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven { url = 'https://jitpack.io' }
     }
 }
-`
+```
 
-### 2. Add dependency to your pp/build.gradle:
-`groovy
+### 2. Add the dependency
+
+In your `app/build.gradle`:
+```groovy
 dependencies {
-    implementation 'com.github.YOUR_USERNAME:smdey-ads-sdk:1.0.0'
+    implementation 'com.github.3bdesamad:smdey-ads-sdk:1.0.0'
 }
-`
+```
+
+### 3. Add your AdMob App ID
+
+In your `app/src/main/AndroidManifest.xml`:
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Replace with your actual AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" />
+    </application>
+</manifest>
+```
 
 ---
 
-## Quick Start
+## 🛠️ Quick Start & Code Examples
 
-### 1. In AndroidManifest.xml
-Add your AdMob Application ID:
-`xml
-<manifest>
-    <application ...>
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY" />
-    </application>
-</manifest>
-`
+### 1. Initialize in `Application.java`
 
-### 2. Initialize in MyApplication.java
-`java
+```java
 public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
 
-        AdsSdk.init(this, new AdsConfig.Builder("ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY")
-                .setBannerId("ca-app-pub-XXXXXXXXXXXXXXXX/BANNER_ID")
-                .setInterstitialId("ca-app-pub-XXXXXXXXXXXXXXXX/INTERSTITIAL_ID")
-                .setRewardedId("ca-app-pub-XXXXXXXXXXXXXXXX/REWARDED_ID")
-                .setAppOpenId("ca-app-pub-XXXXXXXXXXXXXXXX/APP_OPEN_ID")
-                .setDebug(BuildConfig.DEBUG)
-                .setInterstitialInterval(6) // Show interstitial every 6 clicks
-                
-                // Exclude specific Activities from showing App Open ads
-                .excludeAppOpenActivities(LauncherActivity.class, ActivitySettings.class)
-                
-                // Optional cooldown & timeout customizations:
-                .setAppOpenCooldownMs(15000L)         // 15s cooldown between App Open ads
-                .setAppOpenPreloadDelayMs(3000L)       // 3s delay after startup before preloading
+        AdsConfig config = new AdsConfig.Builder("ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy")
+                .setBannerId("ca-app-pub-xxxxxxxxxxxxxxxx/bbbbbbbbbb")
+                .setInterstitialId("ca-app-pub-xxxxxxxxxxxxxxxx/iiiiiiiiii")
+                .setRewardedId("ca-app-pub-xxxxxxxxxxxxxxxx/rrrrrrrrrr")
+                .setAppOpenId("ca-app-pub-xxxxxxxxxxxxxxxx/oooooooooo")
+                .setDebug(BuildConfig.DEBUG)          // Uses EEA debug geography in debug builds
+                .setTag("SMDEY_ADS")
+                .setInterstitialInterval(6)           // Show interstitial every 6 clicks
+                .excludeAppOpenActivities(LauncherActivity.class) // Suppress App Open on splash/launcher
+                .setAppOpenCooldownMs(30000L)         // 30s cooldown between App Open ads
+                .setAppOpenPreloadDelayMs(3000L)       // 3s delay after cold start before first preload
                 .setLoadingOverlayTimeoutMs(4000L)     // 4s max wait for interstitial loading overlay
-                .setBannerRetryCooldownMs(15000L)      // 15s cooldown after failed banner load
-                
-                .setLoadingOverlayProvider(Dialogs::showLoadingAd)
-                .build()
-        );
+                .setBannerRetryCooldownMs(15000L)      // 15s retry cooldown after banner failure
+                //.setTestDeviceId("YOUR_HASHED_TEST_DEVICE_ID")
+                .setAdsRemovedProvider(() -> isUserVip()) // VIP / In-App Purchase provider
+                .setLoadingOverlayProvider(Dialogs::showLoadingAd) // Custom loading dialog
+                .build();
+
+        AdsSdk.init(this, config);
     }
 }
-`
+```
+
+> [!TIP]
+> **Smart Auto-Configuration**: All Ad Unit IDs are completely optional! If your app does not use a format (e.g. Rewarded or App Open), **simply omit its `.set...Id()` call**. The SDK automatically disables that format with zero wasted network or memory allocations.
 
 ---
 
-## Running the Demo App
+### 2. Add Smart Banner in XML Layout
 
-The included :app module is a ready-to-run demo configured with Google's official public test ad units:
+Place `SmartBannerView` anywhere in your XML layout:
+
+```xml
+<com.smdey.ads.sdk.banner.SmartBannerView
+    android:id="@+id/smartBanner"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
+```
+
+> [!NOTE]
+> **Zero Java Setup Needed**: `SmartBannerView` attaches automatically to the shared `BannerManager`, respects Activity lifecycle, displays a built-in Facebook Shimmer skeleton while loading, and automatically hides/restores during App Open ads.
+
+---
+
+### 3. Show Interstitial Ad on Navigation / Button Click
+
+#### Frequency Click Interstitial (e.g., every 6 clicks):
+```java
+binding.btnNextScreen.setOnClickListener(v -> {
+    AdsSdk.getInstance().interstitial().showAdWithLoadingOverlayByClick(this, () -> {
+        // Runs after the ad is dismissed, or immediately if below click threshold / ads removed
+        if (!isSafeToUpdate()) return;
+        startActivity(new Intent(this, SecondActivity.class));
+    });
+});
+```
+
+#### Direct Navigation Click:
+```java
+AdsSdk.getInstance().interstitial().navigationClickAd(this, () -> {
+    startActivity(new Intent(this, SecondActivity.class));
+});
+```
+
+#### Direct Full-Screen Interstitial with Loading Overlay:
+```java
+AdsSdk.getInstance().interstitial().showAdWithLoadingOverlay(this, () -> {
+    // Action to perform after interstitial
+});
+```
+
+---
+
+### 4. Load & Show Standard Rewarded Ads
+
+```java
+// 1. If ad is already cached in RAM, show immediately:
+if (AdsSdk.getInstance().rewarded().isAdReady()) {
+    AdsSdk.getInstance().rewarded().showAd(this, (amount, type) -> {
+        Toast.makeText(this, "Reward earned: " + amount + " " + type, Toast.LENGTH_SHORT).show();
+    });
+} else {
+    // 2. Otherwise load and show upon completion:
+    AdsSdk.getInstance().rewarded().loadAd(this, new RewardedManager.OnLoadListener() {
+        @Override
+        public void onLoaded() {
+            AdsSdk.getInstance().rewarded().showAd(MainActivity.this, (amount, type) -> {
+                Toast.makeText(MainActivity.this, "Reward earned: " + amount + " " + type, Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        @Override
+        public void onFailed() {
+            Toast.makeText(MainActivity.this, "Failed to load rewarded ad", Toast.LENGTH_SHORT).show();
+        }
+    });
+}
+```
+
+---
+
+### 5. App Open Ads
+
+App Open ads are automatically displayed when returning from background via `ProcessLifecycleOwner`.
+
+#### Manual Triggering & Preloading:
+```java
+if (AdsSdk.getInstance().appOpen().isAdAvailable()) {
+    AdsSdk.getInstance().appOpen().showIfAvailable(this);
+} else {
+    AdsSdk.getInstance().appOpen().preloadAd(this);
+}
+```
+
+#### Suppress App Open on Specific Screens:
+Either pass the Activity class to `excludeAppOpenActivities(...)` during initialization:
+```java
+new AdsConfig.Builder(...)
+    .excludeAppOpenActivities(LauncherActivity.class, PaywallActivity.class)
+```
+
+Or implement `OpenAdVisibilityControl` on your Activity:
+```java
+public class LauncherActivity extends BaseActivity implements OpenAdVisibilityControl {
+    @Override
+    public boolean canShowOpenAd() {
+        return false; // Suppresses App Open ads on this screen
+    }
+
+    @Override
+    public void hideBannerAd() {}
+
+    @Override
+    public void showBannerAd() {}
+}
+```
+
+---
+
+### 6. Request GDPR / UMP Consent & Privacy Options
+
+#### Gather Consent on App Launch:
+```java
+AdsSdk.getInstance().consent().gatherConsent(this, () -> {
+    boolean canRequestAds = AdsSdk.getInstance().consent().canRequestAds();
+    Log.d("APP", "Consent resolved. Can request ads: " + canRequestAds);
+});
+```
+
+#### Privacy Options Button (Required by Google Play in EEA):
+```java
+binding.btnPrivacyOptions.setOnClickListener(v -> {
+    if (AdsSdk.getInstance().consent().isPrivacyOptionsRequired()) {
+        AdsSdk.getInstance().consent().showPrivacyOptions(this, () -> {
+            Toast.makeText(this, "Privacy options updated", Toast.LENGTH_SHORT).show();
+        });
+    }
+});
+```
+
+---
+
+### 7. Remove Ads for VIP / In-App Purchases
+
+Configure the dynamic provider in `AdsConfig`:
+```java
+new AdsConfig.Builder(...)
+    .setAdsRemovedProvider(() -> userPreferences.isVipUser())
+    .build();
+```
+Whenever `isVipUser()` returns `true`, all ad requests, banners, and full-screen interstitials are instantly disabled across the entire application with zero performance penalty.
+
+---
+
+### 8. Custom Loading Dialog Overlay
+
+Provide your own custom dialog to be displayed while loading interstitials:
+```java
+new AdsConfig.Builder(...)
+    .setLoadingOverlayProvider(new AdLoadingOverlayProvider() {
+        @Override
+        public Dialog showLoading(@NonNull Activity activity) {
+            Dialog dialog = new Dialog(activity, R.style.TransparentDialog);
+            dialog.setContentView(R.layout.dialog_loading_ad);
+            dialog.setCancelable(false);
+            dialog.show();
+            return dialog;
+        }
+
+        @Override
+        public void dismissLoading(@Nullable Dialog dialog) {
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }
+    })
+    .build();
+```
+
+---
+
+## 🔒 Proguard / R8 Rules
+
+The library automatically ships consumer ProGuard rules inside the AAR (`consumer-rules.pro`). If configuring manually:
+
+```proguard
+# smdey-ads-sdk Public APIs & Managers
+-keep public class com.smdey.ads.sdk.** {
+    public *;
+}
+
+# SmartBannerView XML & Public API
+-keep class com.smdey.ads.sdk.banner.SmartBannerView {
+    public <init>(...);
+    public *;
+}
+
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# GMA Next-Gen & UMP
+-dontwarn com.google.android.libraries.ads.mobile.sdk.**
+-dontwarn com.google.android.ump.**
+-dontwarn com.google.android.gms.internal.ads.**
+
+# Facebook Shimmer
+-keep class com.facebook.shimmer.** { *; }
+-dontwarn com.facebook.shimmer.**
+```
+
+---
+
+## 🏃 Running the Demo App
+
+The included `:app` module is a fully working demo configured with Google's official public test ad units:
 1. Clone this repository.
-2. Open in Android Studio.
-3. Click **Run** — test ads work immediately out of the box!
+2. Open in Android Studio (Giraffe / Hedgehog / Iguana / Ladybug / Meerkat+).
+3. Click **Run** — test ads run immediately without any extra setup!
+
+---
+
+## 📄 License & Author
+
+Developed by **Abdessamad** (`3bdesamad`).  
+Licensed under the [Apache License 2.0](LICENSE).
