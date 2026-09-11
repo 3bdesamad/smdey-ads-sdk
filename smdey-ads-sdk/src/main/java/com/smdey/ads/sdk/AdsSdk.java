@@ -63,7 +63,27 @@ public final class AdsSdk {
 
     public static synchronized void init(@NonNull Context context, @NonNull AdsConfig config) {
         if (instance == null) {
+            verifyRuntimeDependencies();
             instance = new AdsSdk(context, config);
+        }
+    }
+
+    private static void verifyRuntimeDependencies() {
+        try {
+            Class.forName("com.google.android.libraries.ads.mobile.sdk.MobileAds");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(
+                "GMA Next-Gen SDK is missing from runtime dependencies!\n" +
+                "Please add 'implementation \"com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.4.0\"' to your app's build.gradle."
+            );
+        }
+        try {
+            Class.forName("com.google.android.ump.UserMessagingPlatform");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(
+                "Google UMP SDK is missing from runtime dependencies!\n" +
+                "Please add 'implementation \"com.google.android.ump:user-messaging-platform:4.0.0\"' to your app's build.gradle."
+            );
         }
     }
 

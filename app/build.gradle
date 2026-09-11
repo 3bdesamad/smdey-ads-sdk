@@ -40,6 +40,11 @@ android {
 
 dependencies {
     implementation project(':smdey-ads-sdk')
+
+    // GMA Next-Gen SDK & UMP runtime dependencies (controlled by Main App)
+    implementation 'com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.4.0'
+    implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
+
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.activity:activity:1.13.0'
 }
