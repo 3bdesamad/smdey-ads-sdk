@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Smdey Ads Demo</string>
+    <string name="loading_ad">Loading Ad…</string>
+    <string name="please_wait">Please wait a moment</string>
+
+    <string name="title_activity_main">Screen 1: Main Demo</string>
+    <string name="title_activity_second">Screen 2: Multi-Banner Test</string>
+    <string name="title_activity_third">Screen 3: Deep Stack Banner Test</string>
+
+    <string name="show_interstitial">Show Interstitial Ad</string>
+    <string name="show_rewarded">Show Rewarded Ad</string>
+    <string name="show_app_open">Show App Open Ad</string>
+    <string name="open_second_activity">Open Screen 2 (Test Banner)</string>
+    <string name="open_third_activity">Open Screen 3 (Deep Stack)</string>
+    <string name="back_to_main">Back to Screen 1</string>
+    <string name="back_to_second">Back to Screen 2</string>
+    <string name="consent_options">Consent / Privacy Options</string>
+
+    <string name="rewarded_dialog_title">Watch a Video Ad?</string>
+    <string name="rewarded_dialog_message">Watch a short video ad to earn %1$d Coins and unlock bonus content!</string>
+    <string name="rewarded_dialog_positive">Watch Ad</string>
+    <string name="rewarded_dialog_negative">Not Now</string>
+    <string name="rewarded_ad_ready">Rewarded ad ready! Click again to show.</string>
+    <string name="rewarded_ad_failed">Failed to load rewarded ad.</string>
+    <string name="rewarded_ad_earned">Reward Earned: %1$d %2$s</string>
+
+    <string-array name="ad_placeholder_phrases">
+        <item>This keeps the app free for everyone.</item>
+        <item>Ads help us improve the app.</item>
+        <item>This ad supports free features.</item>
+        <item>Ads allow us to keep developing.</item>
+        <item>Advertising helps fund updates.</item>
+        <item>This ad supports our small team.</item>
+        <item>Ads help cover our costs.</item>
+    </string-array>
+
+</resources>

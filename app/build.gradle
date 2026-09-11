@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.smdey.sample'
+    compileSdk 37
+
+    defaultConfig {
+        applicationId "com.smdey.sample"
+        minSdk 28
+        targetSdk 37
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        buildTypes.each {
+            it.buildConfigField 'String', 'Admob_Banner', AdmobBanner
+            it.buildConfigField 'String', 'Admob_Interstitial', AdmobInterstitial
+            it.buildConfigField 'String', 'Admob_OpenAd', AdmobOpenAd
+            it.buildConfigField 'String', 'Admob_RewardedAd', AdmobRewardedAd
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation project(':smdey-ads-sdk')
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation 'androidx.activity:activity:1.13.0'
+}

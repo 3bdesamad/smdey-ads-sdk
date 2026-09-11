@@ -1,0 +1,101 @@
+<resources>
+    <!-- Base application theme. -->
+
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorPrimaryVariant">@color/red_500</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/onBackground</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/onSurface</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/onError</item>
+
+        <!-- Set the default Font -->
+        <item name="android:fontFamily">@font/quick_sand_regular</item>
+        <!-- Remove padding from Font -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Set the default style for MaterialButton -->
+        <item name="materialButtonStyle">@style/BaseMaterialButton</item>
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.App.MaterialTimePicker.Gray</item>
+
+    </style>
+
+
+
+    <!-- Change Color Back Arrow icon -->
+    <style name="toolbarBackColor" parent="@style/ThemeOverlay.Material3.ActionBar">
+        <item name="colorControlNormal">@color/tintColor</item>
+    </style>
+
+    <!-- Toolbar Change font and text size -->
+    <style name="toolbarAppearance">
+        <item name="android:fontFamily">@font/quick_sand_bold</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textSize">@dimen/dimen_20</item>
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
+    <!-- Remove margin from MaterialButton -->
+    <style name="BaseMaterialButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:insetTop">@dimen/dimen_0</item>
+        <item name="android:insetBottom">@dimen/dimen_0</item>
+        <item name="android:insetLeft">@dimen/dimen_0</item>
+        <item name="android:insetRight">@dimen/dimen_0</item>
+        <item name="cornerRadius">@dimen/dimen_6</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+
+    <!-- Set rounded shape for ShapeableImageView 50% -->
+    <style name="ImageViewCornerSize50">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Set rounded shape for ShapeableImageView 10dp -->
+    <style name="ImageViewCornerSize10">
+        <item name="cornerSize">@dimen/dimen_10</item>
+    </style>
+
+    <!-- Set rounded shape for ShapeableImageView 6dp -->
+    <style name="ImageViewCornerSize6">
+        <item name="cornerSize">@dimen/dimen_6</item>
+    </style>
+
+    <!-- Set rounded shape for ShapeableImageView 4dp -->
+    <style name="ImageViewCornerSize4">
+        <item name="cornerSize">@dimen/dimen_4</item>
+    </style>
+
+
+
+
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="ThemeOverlay.App.MaterialTimePicker.Gray" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <item name="colorPrimary">@color/gray_500</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/gray_500</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/gray_200</item>
+        <item name="colorOnSecondaryContainer">@color/textColor</item>
+        <item name="colorSurface">@color/gray_50</item>
+        <item name="colorOnSurface">@color/textColor</item>
+        <item name="colorOutline">@color/gray_200</item>
+    </style>
+
+
+    <style name="CircleImageStyle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+
+
+</resources>

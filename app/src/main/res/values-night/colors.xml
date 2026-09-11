@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="primary">#D0BCFF</color>
+    <color name="onPrimary">#381E72</color>
+    <color name="accent">@color/blue_300</color>
+    <color name="background">#121A26</color>
+    <color name="onBackground">#E6E1E5</color>
+    <color name="surface">#1C1B1F</color>
+    <color name="onSurface">#E6E1E5</color>
+    <color name="error">#F2B8B5</color>
+    <color name="onError">#601410</color>
+
+
+    <!--   Color Dark Mode-->
+    <color name="textColor">#F3F6FA</color>
+    <color name="cardColor">#202631</color>
+    <color name="cardBorder">#303a4a</color>
+    <color name="tintColor">#98A4B9</color>
+    <color name="hintColor">#535B67</color>
+    <color name="lineColor">@color/hintColor</color>
+    <color name="rippleColor">#1AFFFFFF</color>
+    <color name="green_100_test">#2656bf3a</color>
+    <color name="red_100_test">#26f84e3b</color>
+    <color name="orange_100_test">#26f07c32</color>
+
+    <!-- Selected -->
+    <color name="selectedColor">@color/cardBorder</color>
+
+
+
+</resources>

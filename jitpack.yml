@@ -1,0 +1,6 @@
+jdk:
+  - openjdk17
+before_install:
+  - ./gradlew --version
+install:
+  - ./gradlew :smdey-ads-sdk:publishToMavenLocal
