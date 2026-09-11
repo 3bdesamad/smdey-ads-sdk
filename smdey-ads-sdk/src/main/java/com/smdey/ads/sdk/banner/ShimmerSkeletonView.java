@@ -21,8 +21,8 @@ import androidx.annotation.Nullable;
  */
 public final class ShimmerSkeletonView extends View {
 
-    private static final int SKELETON_COLOR = 0xFFB0B0B0;
-    private static final float MIN_ALPHA = 0.35f;
+    private static final int SKELETON_COLOR = 0xFFE3E9EC;
+    private static final float MIN_ALPHA = 0.45f;
     private static final float MAX_ALPHA = 1.0f;
     private static final long PULSE_DURATION_MS = 550L;
 
