@@ -2,7 +2,7 @@
 
 A high-performance, lifecycle-safe, and low-end device optimized Google Mobile Ads (GMA Next-Gen 1.4.0) & UMP (GDPR) Consent library for Android.
 
-[![JitPack](https://img.shields.io/badge/JitPack-1.0.1-brightgreen.svg)](https://jitpack.io/#3bdesamad/smdey-ads-sdk)
+[![JitPack](https://img.shields.io/badge/JitPack-1.0.2-brightgreen.svg)](https://jitpack.io/#3bdesamad/smdey-ads-sdk)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![MinSdk](https://img.shields.io/badge/MinSdk-28-green.svg)](https://developer.android.com)
 [![TargetSdk](https://img.shields.io/badge/TargetSdk-37-brightgreen.svg)](https://developer.android.com)
@@ -14,7 +14,7 @@ A high-performance, lifecycle-safe, and low-end device optimized Google Mobile A
 
 - ⚡ **Cold-Start Protection (`SdkGate`)**: Defers SDK initialization off critical paths to ensure 60fps startup and zero UI freezes on low-end devices.
 - 🛡️ **Full-Screen Ad Coordinator**: Thread-safe synchronization preventing Interstitial, Rewarded, and App Open ads from colliding or showing concurrently.
-- ♻️ **Shared Banner View (`SmartBannerView`)**: Pooled, shared `AdView` reused across screens with dynamic adaptive height calculation, built-in Facebook Shimmer skeleton placeholders, and zero memory leaks.
+- ♻️ **Shared Banner View (`SmartBannerView`)**: Pooled, shared `AdView` reused across screens with dynamic adaptive height calculation, built-in native pulse skeleton placeholders, and zero memory leaks.
 - ⏱️ **Debounced Interstitials & Frequency Clicks**: Frequency click counter (`showAdWithLoadingOverlayByClick`), smart pre-caching, and customizable loading overlay dialogs.
 - 🎁 **Standard Rewarded Ads**: User-triggered opt-in reward sessions with decoupled load and show callbacks.
 - 📱 **Lifecycle-Aware App Open Ads**: Automatic foreground detection via `ProcessLifecycleOwner`, configurable cooldown timer, startup preload delay, and window focus guard.
@@ -46,7 +46,12 @@ dependencyResolutionManagement {
 In your `app/build.gradle`:
 ```groovy
 dependencies {
-    implementation 'com.github.3bdesamad:smdey-ads-sdk:1.0.1'
+    // GMA Next-Gen SDK & UMP runtime dependencies (controlled by your app)
+    implementation 'com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.4.0'
+    implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
+
+    // Smdey Ads SDK
+    implementation 'com.github.3bdesamad:smdey-ads-sdk:1.0.2'
 }
 ```
 
