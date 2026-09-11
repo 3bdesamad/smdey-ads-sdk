@@ -26,6 +26,7 @@ public class MyApplication extends Application {
                 .setBannerRetryCooldownMs(15000L) // 15s retry cooldown after banner failure
                 //.setTestDeviceId("69EE32AE3D1D93549B74FC6C246AA265") // Put your ID here
                 .setLoadingOverlayProvider(Dialogs::showLoadingAd)
+                .setAdsRemovedProvider(SharedPref.getInstance(this)::isAdsRemoved)
                 .build()
         );
     }
