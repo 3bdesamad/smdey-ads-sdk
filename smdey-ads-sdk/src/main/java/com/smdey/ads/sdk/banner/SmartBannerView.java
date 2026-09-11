@@ -57,6 +57,10 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
 
         @Override
         public void onBannerPending() {
+            if (isAdsRemovedOrDisabled()) {
+                hideAll();
+                return;
+            }
             showLoadingState();
         }
     };
@@ -110,6 +114,11 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
             bannerManager = AdsSdk.getInstance().banner();
         }
 
+        if (isAdsRemovedOrDisabled()) {
+            hideAll();
+            return;
+        }
+
         if (activity != null) {
             applyDynamicHeight(activity);
         }
@@ -136,6 +145,10 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        if (isAdsRemovedOrDisabled()) {
+            hideAll();
+            return;
+        }
         Activity activity = getActivity(getContext());
         if (activity != null) {
             applyDynamicHeight(activity);
@@ -144,6 +157,11 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
 
     @Override
     public void onResume(@NonNull LifecycleOwner owner) {
+        if (isAdsRemovedOrDisabled()) {
+            hideAll();
+            return;
+        }
+
         Activity activity = getActivity(getContext());
         if (activity == null) {
             return;
@@ -244,8 +262,16 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     }
 
     private void scheduleAttachOrLoad(long delayMs) {
+        if (isAdsRemovedOrDisabled()) {
+            hideAll();
+            return;
+        }
         mainHandler.removeCallbacksAndMessages(LOAD_TOKEN);
         mainHandler.postDelayed(() -> {
+            if (isAdsRemovedOrDisabled()) {
+                hideAll();
+                return;
+            }
             Activity currentActivity = getActivity(getContext());
             if (currentActivity == null || !LifecycleGuard.isActivityValid(currentActivity)) {
                 hideAll();
@@ -256,6 +282,11 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     }
 
     private void attachOrLoadNow() {
+        if (isAdsRemovedOrDisabled()) {
+            hideAll();
+            return;
+        }
+
         if (adContainer == null || bannerManager == null) {
             return;
         }
@@ -295,6 +326,10 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     }
 
     public void showLoadingState() {
+        if (isAdsRemovedOrDisabled()) {
+            hideAll();
+            return;
+        }
         setVisibility(VISIBLE);
         if (adContainer != null) {
             adContainer.setVisibility(INVISIBLE);
@@ -336,6 +371,14 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
             shimmerView.stopShimmer();
             shimmerView.setVisibility(GONE);
         }
+    }
+
+    private boolean isAdsRemovedOrDisabled() {
+        if (!AdsSdk.isInitialized()) {
+            return false;
+        }
+        com.smdey.ads.sdk.AdsConfig cfg = AdsSdk.getInstance().getConfig();
+        return cfg.isAdsRemoved() || !cfg.isBannerEnabled() || cfg.getBannerId() == null || cfg.getBannerId().isEmpty();
     }
 
     @Nullable
