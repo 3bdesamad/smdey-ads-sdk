@@ -92,17 +92,23 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
         int pad10 = dpToPx(context, 10);
         shimmerView.setPadding(pad10, 0, pad10, 0);
 
+        int defaultHeightPx = dpToPx(context, 60);
+
         skeletonView = new View(context);
         skeletonView.setBackground(createDefaultSkeletonDrawable(context));
-        shimmerView.addView(skeletonView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        shimmerView.addView(skeletonView, new LayoutParams(LayoutParams.MATCH_PARENT, defaultHeightPx));
 
-        addView(shimmerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        addView(shimmerView, new LayoutParams(LayoutParams.MATCH_PARENT, defaultHeightPx));
 
         // 2. Ad container
         adContainer = new LinearLayout(context);
         adContainer.setOrientation(LinearLayout.VERTICAL);
         adContainer.setVisibility(INVISIBLE);
         addView(adContainer, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+
+        if (isInEditMode()) {
+            return;
+        }
 
         // 3. Bind lifecycle
         Activity activity = getActivity(context);
@@ -323,6 +329,17 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
                 shimmerView.setLayoutParams(shimmerLayoutParams);
             }
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int defaultHeight = dpToPx(getContext(), 60);
+
+        if (heightMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.UNSPECIFIED || isInEditMode()) {
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(defaultHeight, MeasureSpec.EXACTLY);
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     public void showLoadingState() {
