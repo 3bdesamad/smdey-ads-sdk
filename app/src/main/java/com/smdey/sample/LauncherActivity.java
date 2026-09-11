@@ -3,6 +3,7 @@ package com.smdey.sample;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +18,10 @@ public class LauncherActivity extends BaseActivity {
         if (shouldFinishActivity()) {
             return;
         }
+
+        // Test: set ads removed
+//        SharedPref.getInstance(this).setAdsRemoved(false);
+//        Toast.makeText(this, "Thank you! Ads have been removed.", Toast.LENGTH_SHORT).show();
 
         navigateToNextScreen();
     }
