@@ -1,212 +1,94 @@
-# Smdey Ads Android SDK 🚀
+# Smdey Ads SDK (Next-Gen)
 
-A high-performance, lifecycle-safe, and low-end device optimized Google Mobile Ads (GMA Next-Gen) & UMP (GDPR) Consent library for Android.
-
-[![JitPack](https://img.shields.io/badge/JitPack-1.0.0-brightgreen.svg)](https://jitpack.io/#3bdesamad/smdey-ads-sdk)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![MinSdk](https://img.shields.io/badge/MinSdk-28-green.svg)](https://developer.android.com)
-[![TargetSdk](https://img.shields.io/badge/TargetSdk-37-brightgreen.svg)](https://developer.android.com)
+A lightweight, high-performance, lifecycle-aware Google Mobile Ads (GMA) SDK wrapper for Android.
+Optimized for **low-end Android devices** with **zero main-thread blocking**, instant startup, automatic UMP consent handling, adaptive banner pooling, and full-screen ad coordination.
 
 ---
 
-## 🌟 Supported Ad Formats & Features
+## Features
 
-- ⚡ **Cold-Start Protection (`SdkGate`)**: Defers SDK initialization to avoid main-thread jank and frame drops on budget devices.
-- ♻️ **Shared Banner Reuse & Collapsible Banners**: Reuses a single `AdView` across screens and supports high-eCPM collapsible bottom/top banners.
-- 🖼️ **Self-Managing Native Ads (`SmartNativeView`)**: Automatic Shimmer skeleton placeholders, Small & Medium templates, and lifecycle-safe unbinding.
-- 🏆 **Rewarded Interstitial Ads**: Premium seamless rewarded transitions with Google countdown screen and high eCPMs.
-- 🎁 **Standard Rewarded Ads**: User-triggered opt-in reward sessions with decoupled SDK listeners.
-- ⏱️ **Debounced Interstitials & Click Throttling**: Frequency control and cooldown timers with smooth custom loading overlays.
-- 📱 **App Open Cooldown**: Automatic banner auto-hide/restore bridge when App Open ads are presented.
-- 🛡️ **Google UMP (GDPR) Ready**: European Economic Area (EEA) consent gathering and Privacy Options management built-in.
-- ⏳ **Anti-Tamper Grace Period**: Automatically pauses ads for newly installed users with OS install-time tracking and clock rollback detection.
-- 💎 **One-Line In-App Purchase Support**: Call `AdsFacade.getInstance().setAdsRemoved(true)` to instantly disable all ads.
+- **🚀 Low-End Device Optimized:** Zero UI jank, zero allocations in hot paths, asynchronous SDK initialization.
+- **🛡️ Full-Screen Ad Coordinator:** Prevents duplicate ad overlaps and AdMob policy violations.
+- **🔄 Window Focus Guard:** Prevents Samsung OneUI / Android launcher transition ad collisions.
+- **⏱️ Configurable Cooldowns:** Full control over App Open cooldowns, preload delays, and loading dialog timeouts.
+- **🚫 Declarative Activity Exclusion:** Easily suppress App Open ads on specific screens (e.g., Splash, Settings, Paywalls).
+- **📋 Automatic UMP Consent Gathering:** Seamless integration with Google User Messaging Platform (GDPR/EEA).
+- **📱 Smart Adaptive Banner View:** Single shared AdView across activities with zero memory leaks.
 
 ---
 
-## 📦 Installation
+## Installation (JitPack)
 
-### 1. Add JitPack repository
-
-In your root `settings.gradle`:
-```groovy
+### 1. Add repository to settings.gradle:
+`groovy
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url = 'https://jitpack.io' }
+        maven { url 'https://jitpack.io' }
     }
 }
-```
+`
 
-### 2. Add the dependency
-
-In your `app/build.gradle`:
-```groovy
+### 2. Add dependency to your pp/build.gradle:
+`groovy
 dependencies {
-    implementation 'com.github.3bdesamad:smdey-ads-sdk:1.0.0'
+    implementation 'com.github.YOUR_USERNAME:smdey-ads-sdk:1.0.0'
 }
-```
-
-### 3. Add your AdMob App ID
-
-In your `app/src/main/AndroidManifest.xml`:
-```xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application>
-        <!-- Replace with your actual AdMob App ID -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" />
-    </application>
-</manifest>
-```
+`
 
 ---
 
-## 🛠️ Quick Start & Code Examples
+## Quick Start
 
-### 1. Initialize in `Application.java`
+### 1. In AndroidManifest.xml
+Add your AdMob Application ID:
+`xml
+<manifest>
+    <application ...>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY" />
+    </application>
+</manifest>
+`
 
-```java
+### 2. Initialize in MyApplication.java
+`java
 public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
 
-        AdsConfig config = new AdsConfig.Builder()
-                .setBannerId("ca-app-pub-xxxxxxxxxxxxxxxx/bbbbbbbbbb")
-                .setInterstitialId("ca-app-pub-xxxxxxxxxxxxxxxx/iiiiiiiiii")
-                .setAppOpenId("ca-app-pub-xxxxxxxxxxxxxxxx/oooooooooo")
-                .setRewardedId("ca-app-pub-xxxxxxxxxxxxxxxx/rrrrrrrrrr")
-                .setRewardedInterstitialId("ca-app-pub-xxxxxxxxxxxxxxxx/vvvvvvvvvv")
-                .setNativeId("ca-app-pub-xxxxxxxxxxxxxxxx/nnnnnnnnnn")
-                .setCollapsibleBannerEnabled(true) // Enables 2x-3x higher banner eCPM
-                .setCollapsibleGravity("bottom")
-                .setGracePeriodEnabled(true)       // Delay ads for new installs
-                .setGracePeriodDays(3)             // Days to pause ads (e.g. 3, 5, 7)
-                .setDebugMode(BuildConfig.DEBUG)   // Uses Google test IDs in debug builds
-                .setInterstitialFrequency(3)       // Show interstitial every 3 clicks
-                .setInterstitialCooldownMs(30000)
-                .setAppOpenCooldownMs(40000)
-                .build();
-
-        AdsFacade.init(this, config);
+        AdsSdk.init(this, new AdsConfig.Builder("ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY")
+                .setBannerId("ca-app-pub-XXXXXXXXXXXXXXXX/BANNER_ID")
+                .setInterstitialId("ca-app-pub-XXXXXXXXXXXXXXXX/INTERSTITIAL_ID")
+                .setRewardedId("ca-app-pub-XXXXXXXXXXXXXXXX/REWARDED_ID")
+                .setAppOpenId("ca-app-pub-XXXXXXXXXXXXXXXX/APP_OPEN_ID")
+                .setDebug(BuildConfig.DEBUG)
+                .setInterstitialInterval(6) // Show interstitial every 6 clicks
+                
+                // Exclude specific Activities from showing App Open ads
+                .excludeAppOpenActivities(LauncherActivity.class, ActivitySettings.class)
+                
+                // Optional cooldown & timeout customizations:
+                .setAppOpenCooldownMs(15000L)         // 15s cooldown between App Open ads
+                .setAppOpenPreloadDelayMs(3000L)       // 3s delay after startup before preloading
+                .setLoadingOverlayTimeoutMs(4000L)     // 4s max wait for interstitial loading overlay
+                .setBannerRetryCooldownMs(15000L)      // 15s cooldown after failed banner load
+                
+                .setLoadingOverlayProvider(Dialogs::showLoadingAd)
+                .build()
+        );
     }
 }
-```
-
-> [!TIP]
-> **Smart Auto-Configuration**: All Ad Unit IDs are completely optional! If your app doesn't use a format (e.g. Rewarded or Native), **simply omit its `.set...Id()` call**. The SDK automatically detects missing IDs and disables that format with zero wasted network or memory.
-> You can also explicitly pass `.setRewardedEnabled(false)` anytime (e.g. for Firebase Remote Config kill-switches).
-
-### 2. Add Smart Banner in XML Layout
-
-```xml
-<com.smdey.ads.views.SmartBannerView
-    android:id="@+id/smartBanner"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
-```
-
-### 3. Add Smart Native Ads in XML Layout
-
-#### Small Template (Compact row format)
-```xml
-<com.smdey.ads.views.SmartNativeView
-    android:id="@+id/smartNativeSmall"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:ads_template="small" />
-```
-
-#### Medium Template (Card format with MediaView)
-```xml
-<com.smdey.ads.views.SmartNativeView
-    android:id="@+id/smartNativeMedium"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:ads_template="medium" />
-```
-
-### 4. Show Interstitial Ad on Navigation / Button Click
-
-```java
-binding.btnNextScreen.setOnClickListener(v -> {
-    AdsFacade.getInstance().interstitial().navigationClickAd(this, () -> {
-        // Proceed with navigation
-        startActivity(new Intent(this, NextActivity.class));
-    });
-});
-```
-
-### 5. Load & Show Rewarded Interstitial Ads (Recommended)
-
-```java
-AdsFacade.getInstance().rewardedInterstitial().loadAd(this, new RewardedInterstitialManager.OnLoadListener() {
-    @Override
-    public void onAdLoaded() {
-        AdsFacade.getInstance().rewardedInterstitial().showAd(MainActivity.this, rewardItem -> {
-            Toast.makeText(MainActivity.this, "Reward earned: " + rewardItem.getAmount(), Toast.LENGTH_SHORT).show();
-        }, () -> {
-            // Ad dismissed callback
-        });
-    }
-
-    @Override
-    public void onAdFailedToLoad() {
-        Toast.makeText(MainActivity.this, "Failed to load rewarded interstitial", Toast.LENGTH_SHORT).show();
-    }
-});
-```
-
-### 6. Load & Show Standard Rewarded Ads
-
-```java
-AdsFacade.getInstance().rewarded().loadAd(this, new RewardedManager.OnLoadListener() {
-    @Override
-    public void onAdLoaded() {
-        AdsFacade.getInstance().rewarded().showAd(MainActivity.this, rewardItem -> {
-            Toast.makeText(MainActivity.this, "Reward earned: " + rewardItem.getAmount(), Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    @Override
-    public void onAdFailedToLoad() {
-        Toast.makeText(MainActivity.this, "Failed to load rewarded ad", Toast.LENGTH_SHORT).show();
-    }
-});
-```
-
-### 7. Request GDPR / UMP Consent
-
-```java
-AdsFacade.getInstance().ensureConsentThenRun(this, () -> {
-    // Consent resolved -> safe to request/preload ads
-});
-```
-
-### 8. Remove Ads for VIP / In-App Purchases
-
-```java
-// When user purchases "Remove Ads"
-AdsFacade.getInstance().setAdsRemoved(true);
-```
+`
 
 ---
 
-## 🔒 Proguard Rules
+## Running the Demo App
 
-The library automatically includes consumer Proguard rules. If needed manually:
-```proguard
--keep class com.smdey.ads.** { *; }
--keepclassmembers class com.smdey.ads.** { *; }
-```
-
----
-
-## 📄 License & Author
-
-Developed by **Abdessamad** (`3bdesamad`).  
-Licensed under the [Apache License 2.0](LICENSE).
+The included :app module is a ready-to-run demo configured with Google's official public test ad units:
+1. Clone this repository.
+2. Open in Android Studio.
+3. Click **Run** — test ads work immediately out of the box!

@@ -20,6 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "smdey-ads-sdk"
-include ':app',':ads'
 
+rootProject.name = "smdey-ads-sdk"
+include ':smdey-ads-sdk'
+include ':app'

@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".ActivityMain">
 
-    <!-- 1. Toolbar -->
     <include
         android:id="@+id/incToolbar"
         layout="@layout/toolbar"
@@ -16,117 +17,79 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="24dp">
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="@dimen/dimen_20"
+            android:gravity="center_horizontal">
 
-            <Button
-                android:id="@+id/btnConsent"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/request_consent" />
+                android:text="@string/title_activity_main"
+                android:fontFamily="@font/quick_sand_bold"
+                android:textSize="22sp"
+                android:textColor="@color/white"
+                android:layout_marginBottom="@dimen/dimen_24" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnInterstitial"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/show_interstitial" />
+                android:layout_height="54dp"
+                android:text="@string/show_interstitial"
+                android:fontFamily="@font/quick_sand_bold"
+                android:layout_marginBottom="@dimen/dimen_12" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRewarded"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/show_rewarded" />
+                android:layout_height="54dp"
+                android:text="@string/show_rewarded"
+                android:fontFamily="@font/quick_sand_bold"
+                android:layout_marginBottom="@dimen/dimen_12" />
 
-            <Button
-                android:id="@+id/btnRewardedInterstitial"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAppOpen"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Show Rewarded Interstitial Ad" />
+                android:layout_height="54dp"
+                android:text="@string/show_app_open"
+                android:fontFamily="@font/quick_sand_bold"
+                android:layout_marginBottom="@dimen/dimen_12" />
 
-            <Button
-                android:id="@+id/btnRefreshNative"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenSecond"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Reload Native Ads" />
+                android:layout_height="54dp"
+                android:text="@string/open_second_activity"
+                android:fontFamily="@font/quick_sand_bold"
+                android:layout_marginBottom="@dimen/dimen_12" />
 
-            <Button
-                android:id="@+id/btnOpenDetail"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnConsent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Open Collapsible Banner Screen" />
-
-            <Button
-                android:id="@+id/btnOpenNormalBanner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Open Normal Banner Screen" />
-
-            <Button
-                android:id="@+id/btnToggleRemoveAds"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/toggle_remove_ads" />
+                android:layout_height="54dp"
+                android:text="@string/consent_options"
+                android:fontFamily="@font/quick_sand_bold"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_marginBottom="@dimen/dimen_12" />
 
             <TextView
                 android:id="@+id/tvStatus"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Status: Ready"
-                android:textSize="16sp" />
-
-            <!-- Small Native Ad Preview -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Native Ad (Small Template)"
-                android:textStyle="bold" />
-
-            <com.smdey.ads.views.SmartNativeView
-                android:id="@+id/smartNativeSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:ads_template="small" />
-
-            <!-- Medium Native Ad Preview -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Native Ad (Medium Template)"
-                android:textStyle="bold" />
-
-            <com.smdey.ads.views.SmartNativeView
-                android:id="@+id/smartNativeMedium"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                app:ads_template="medium" />
+                android:text="Ready"
+                android:fontFamily="@font/quick_sand_medium"
+                android:textColor="@color/tintColor"
+                android:layout_marginTop="@dimen/dimen_16" />
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- SmartBannerView integrated cleanly -->
-    <com.smdey.ads.views.SmartBannerView
-        android:id="@+id/smartBanner"
+    <com.smdey.ads.sdk.banner.SmartBannerView
+        android:id="@+id/bannerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

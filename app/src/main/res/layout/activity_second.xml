@@ -1,0 +1,73 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ActivitySecond">
+
+    <include
+        android:id="@+id/incToolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/dimen_20"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_activity_second"
+                android:fontFamily="@font/quick_sand_bold"
+                android:textSize="22sp"
+                android:textColor="@color/white"
+                android:layout_marginBottom="@dimen/dimen_24" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="This screen tests banner transfer from Screen 1. Notice how the banner detached and attached smoothly with the shimmering skeleton!"
+                android:fontFamily="@font/quick_sand_regular"
+                android:textSize="15sp"
+                android:textColor="@color/tintColor"
+                android:gravity="center"
+                android:layout_marginBottom="@dimen/dimen_32" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenThird"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="@string/open_third_activity"
+                android:fontFamily="@font/quick_sand_bold"
+                android:layout_marginBottom="@dimen/dimen_12" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackToMain"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="@string/back_to_main"
+                android:fontFamily="@font/quick_sand_bold"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_marginBottom="@dimen/dimen_12" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.smdey.ads.sdk.banner.SmartBannerView
+        android:id="@+id/bannerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

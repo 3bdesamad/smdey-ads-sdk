@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ============================================================== -->
-    <!-- Main App Brand Palette (Dark Mode)                             -->
-    <!-- ============================================================== -->
-    <color name="app_primary">#90CAF9</color>
-    <color name="app_on_primary">#0D47A1</color>
-    <color name="app_background">#121A26</color>
-    <color name="app_surface">#202631</color>
-    <color name="app_surface_variant">#2A3444</color>
-    <color name="app_text_primary">#F3F6FA</color>
-    <color name="app_text_secondary">#98A4B9</color>
-    <color name="app_outline">#303A4A</color>
 
-    <!-- ============================================================== -->
-    <!-- SDK Color Overrides (Dark Mode)                                -->
-    <!-- Linked to App Palette to prevent duplicate hex definitions     -->
-    <!-- ============================================================== -->
+    <color name="primary">#D0BCFF</color>
+    <color name="onPrimary">#381E72</color>
+    <color name="accent">@color/blue_300</color>
+    <color name="background">#121A26</color>
+    <color name="onBackground">#E6E1E5</color>
+    <color name="surface">#1C1B1F</color>
+    <color name="onSurface">#E6E1E5</color>
+    <color name="error">#F2B8B5</color>
+    <color name="onError">#601410</color>
 
-    <!-- Dialog Loading Colors -->
-    <color name="ads_dialog_bg">@color/app_background</color>
-    <color name="ads_dialog_text_title">@color/app_text_primary</color>
-    <color name="ads_dialog_text_subtitle">@color/app_text_secondary</color>
-    <color name="ads_skeleton_bg">@color/app_surface_variant</color>
 
-    <!-- Native Ad Colors -->
-    <color name="ads_native_card_bg">@color/app_surface</color>
-    <color name="ads_native_card_stroke">@color/app_outline</color>
-    <color name="ads_native_headline">@color/app_text_primary</color>
-    <color name="ads_native_body">@color/app_text_secondary</color>
-    <color name="ads_native_btn_bg">@color/app_primary</color>
-    <color name="ads_native_btn_text">@color/app_on_primary</color>
+    <!--   Color Dark Mode-->
+    <color name="textColor">#F3F6FA</color>
+    <color name="cardColor">#202631</color>
+    <color name="cardBorder">#303a4a</color>
+    <color name="tintColor">#98A4B9</color>
+    <color name="hintColor">#535B67</color>
+    <color name="lineColor">@color/hintColor</color>
+    <color name="rippleColor">#1AFFFFFF</color>
+    <color name="green_100_test">#2656bf3a</color>
+    <color name="red_100_test">#26f84e3b</color>
+    <color name="orange_100_test">#26f07c32</color>
+
+    <!-- Selected -->
+    <color name="selectedColor">@color/cardBorder</color>
+
+
+
 </resources>
