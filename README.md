@@ -134,36 +134,44 @@ Place `SmartBannerView` anywhere in your XML layout:
 
 ### 3. Add Smart Native Ad in XML Layout
 
-Add `SmartNativeAdView` directly in your XML with your preferred template layout (`small` or `medium`):
+Add `SmartNativeAdView` directly in your XML with your preferred template layout (`small`, `medium`, or `large`):
 
 ```xml
-<!-- Small Native Ad (e.g., in Recycler item or bottom banner position) -->
+<!-- 1. Small Native Ad (Horizontal compact row: Icon + Headline + CTA - No Media) -->
 <com.smdey.ads.sdk.nativead.SmartNativeAdView
-    android:id="@+id/smartNativeAd"
+    android:id="@+id/smartNativeAdSmall"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:ad_layout="@layout/layout_native_ad_small" />
 
-<!-- Or Medium / Large Native Ad with MediaView -->
+<!-- 2. Medium Native Ad (Vertical card: Icon + Rating + Headline + Body + CTA - No Media) -->
 <com.smdey.ads.sdk.nativead.SmartNativeAdView
-    android:id="@+id/smartNativeAd"
+    android:id="@+id/smartNativeAdMedium"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:ad_layout="@layout/layout_native_ad_medium" />
+
+<!-- 3. Large Native Ad (Full card with MediaView for video & graphic ads) -->
+<com.smdey.ads.sdk.nativead.SmartNativeAdView
+    android:id="@+id/smartNativeAdLarge"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:ad_layout="@layout/layout_native_ad_large" />
 ```
 
 #### How it works:
 1. **Zero Java Boilerplate**: Automatically loads and binds when attached to the window. No Java initialization is required in your Activity.
-2. **Decoupled Styling**: Templates live in your `:app` module (`layout_native_ad_small.xml` & `layout_native_ad_medium.xml`).
-3. **Dark / Light Mode Support**: By mapping the template color references to theme-aware aliases in `res/values/colors.xml` and `res/values-night/colors.xml` (e.g. `@color/ads_native_card`, `@color/ads_native_cta_bg`), the native ad seamlessly blends into your app's theme.
-4. **Lifecycle & Memory Safe**: Destroys native ad references and bitmaps immediately when detached or on Activity destroy to avoid memory leaks.
-5. **Dynamic Programmatic Loading (Optional)**:
+2. **Decoupled Styling**: Templates live in your `:app` module (`layout_native_ad_small.xml`, `layout_native_ad_medium.xml`, and `layout_native_ad_large.xml`).
+3. **Rich Media Support**: The Large template includes Google GMA's `MediaView` (`@+id/ad_media`) to automatically stream video creatives and display full-resolution promotional banners.
+4. **Dark / Light Mode Support**: By mapping the template color references to theme-aware aliases in `res/values/colors.xml` and `res/values-night/colors.xml` (e.g. `@color/ads_native_card`, `@color/ads_native_cta_bg`), the native ad seamlessly blends into your app's theme.
+5. **Lifecycle & Memory Safe**: Destroys native ad references, bitmaps, and video controllers immediately when detached or on Activity destroy to avoid memory leaks.
+6. **Dynamic Programmatic Loading (Optional)**:
 ```java
 // Refresh current ad:
 binding.smartNativeAd.loadAd();
 
 // Or switch template dynamically:
-binding.smartNativeAd.loadAd(R.layout.layout_native_ad_medium);
+binding.smartNativeAd.loadAd(R.layout.layout_native_ad_large);
 ```
 
 ---
