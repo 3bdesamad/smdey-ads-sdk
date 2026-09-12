@@ -26,6 +26,8 @@
     -dontwarn com.google.android.ump.**                                                                                                                                                                 
     -dontwarn com.google.android.gms.internal.ads.**                                                                                                                                                    
                                                                                                                                                                                                         
-    # 5. Facebook Shimmer (used for programmatic banner loading skeleton)                                                                                                                               
-    -keep class com.facebook.shimmer.** { *; }                                                                                                                                                          
-    -dontwarn com.facebook.shimmer.**    
+    # 5. ShimmerSkeletonView (Constructors + Public UI methods)
+    -keep class com.smdey.ads.sdk.banner.ShimmerSkeletonView {
+        public <init>(...);
+        public *;
+    }    

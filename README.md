@@ -126,7 +126,7 @@ Place `SmartBannerView` anywhere in your XML layout:
 ```
 
 > [!NOTE]
-> **Zero Java Setup Needed**: `SmartBannerView` attaches automatically to the shared `BannerManager`, respects Activity lifecycle, displays a built-in Facebook Shimmer skeleton while loading, and automatically hides/restores during App Open ads.
+> **Zero Java Setup Needed**: `SmartBannerView` attaches automatically to the shared `BannerManager`, respects Activity lifecycle, displays a built-in native pulse skeleton while loading, and automatically hides/restores during App Open ads.
 
 ---
 
@@ -311,9 +311,11 @@ The library automatically ships consumer ProGuard rules inside the AAR (`consume
 -dontwarn com.google.android.ump.**
 -dontwarn com.google.android.gms.internal.ads.**
 
-# Facebook Shimmer
--keep class com.facebook.shimmer.** { *; }
--dontwarn com.facebook.shimmer.**
+# ShimmerSkeletonView
+-keep class com.smdey.ads.sdk.banner.ShimmerSkeletonView {
+    public <init>(...);
+    public *;
+}
 ```
 
 ---
