@@ -2,7 +2,7 @@
 
 A high-performance, lifecycle-safe, and low-end device optimized Google Mobile Ads (GMA Next-Gen 1.4.0) & UMP (GDPR) Consent library for Android.
 
-[![JitPack](https://img.shields.io/badge/JitPack-1.0.3-brightgreen.svg)](https://jitpack.io/#3bdesamad/smdey-ads-sdk)
+[![JitPack](https://img.shields.io/badge/JitPack-1.0.4-brightgreen.svg)](https://jitpack.io/#3bdesamad/smdey-ads-sdk)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![MinSdk](https://img.shields.io/badge/MinSdk-28-green.svg)](https://developer.android.com)
 [![TargetSdk](https://img.shields.io/badge/TargetSdk-37-brightgreen.svg)](https://developer.android.com)
@@ -52,7 +52,7 @@ dependencies {
     implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
 
     // Smdey Ads SDK
-    implementation 'com.github.3bdesamad:smdey-ads-sdk:1.0.3'
+    implementation 'com.github.3bdesamad:smdey-ads-sdk:1.0.4'
 }
 ```
 
