@@ -15,7 +15,7 @@
     <!--   Color Dark Mode-->
     <color name="textColor">#F3F6FA</color>
     <color name="cardColor">#202631</color>
-    <color name="cardBorder">#303a4a</color>
+    <color name="cardStroke">#303a4a</color>
     <color name="tintColor">#98A4B9</color>
     <color name="hintColor">#535B67</color>
     <color name="lineColor">@color/hintColor</color>
@@ -25,7 +25,7 @@
     <color name="orange_100_test">#26f07c32</color>
 
     <!-- Selected -->
-    <color name="selectedColor">@color/cardBorder</color>
+    <color name="selectedColor">@color/cardStroke</color>
 
 
 

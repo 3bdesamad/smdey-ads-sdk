@@ -15,7 +15,7 @@
 
     <!--   Color Light Mode-->
     <color name="cardColor">#FFFFFF</color>
-    <color name="cardBorder">#eef3f7</color>
+    <color name="cardStroke">#eef3f7</color>
     <color name="textColor">#4C6565</color>
     <color name="tintColor">#8C9695</color>
     <color name="hintColor">#E3E9EC</color>
@@ -25,6 +25,17 @@
 
     <!-- Selected -->
     <color name="selectedColor">@color/blue_100</color>
+
+    <!-- Native Ads Color Tokens -->
+    <color name="ads_native_card">@color/cardColor</color>
+    <color name="ads_native_card_stroke">@color/cardStroke</color>
+    <color name="ads_native_headline">@color/textColor</color>
+    <color name="ads_native_body">@color/tintColor</color>
+    <color name="ads_native_cta_bg">@color/blue_500</color>
+    <color name="ads_native_cta_text">@color/white</color>
+    <color name="ads_native_skeleton">@color/hintColor</color>
+    <color name="ads_native_badge_bg">@color/yellow_500</color>
+    <color name="ads_native_badge_text">@color/white</color>
 
 
     <!--   Color UI-->

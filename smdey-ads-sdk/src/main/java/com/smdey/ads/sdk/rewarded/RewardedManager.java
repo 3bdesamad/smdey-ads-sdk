@@ -25,8 +25,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class RewardedManager {
 
+    /**
+     * Callback for asynchronous Rewarded ad load requests.
+     * Guaranteed to execute on the Android UI (Main) thread.
+     */
     public interface OnLoadListener {
+        @androidx.annotation.MainThread
         void onLoaded();
+
+        @androidx.annotation.MainThread
         void onFailed();
     }
 

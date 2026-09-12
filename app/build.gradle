@@ -24,6 +24,7 @@ android {
             it.buildConfigField 'String', 'Admob_Interstitial', AdmobInterstitial
             it.buildConfigField 'String', 'Admob_OpenAd', AdmobOpenAd
             it.buildConfigField 'String', 'Admob_RewardedAd', AdmobRewardedAd
+            it.buildConfigField 'String', 'Admob_Native', AdmobNative
         }
     }
 

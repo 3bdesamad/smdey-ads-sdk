@@ -32,18 +32,32 @@
                 android:text="@string/title_activity_second"
                 android:fontFamily="@font/quick_sand_bold"
                 android:textSize="22sp"
-                android:textColor="@color/white"
+                android:textColor="@color/textColor"
                 android:layout_marginBottom="@dimen/dimen_24" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="This screen tests banner transfer from Screen 1. Notice how the banner detached and attached smoothly with the shimmering skeleton!"
+                android:text="This screen tests both Small and Medium Native Ads alongside banner transfer from Screen 1."
                 android:fontFamily="@font/quick_sand_regular"
                 android:textSize="15sp"
                 android:textColor="@color/tintColor"
                 android:gravity="center"
-                android:layout_marginBottom="@dimen/dimen_32" />
+                android:layout_marginBottom="@dimen/dimen_24" />
+
+            <com.smdey.ads.sdk.nativead.SmartNativeAdView
+                android:id="@+id/smartNativeAdSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_16"
+                app:ad_layout="@layout/layout_native_ad_small" />
+
+            <com.smdey.ads.sdk.nativead.SmartNativeAdView
+                android:id="@+id/smartNativeAdMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_24"
+                app:ad_layout="@layout/layout_native_ad_medium" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOpenThird"

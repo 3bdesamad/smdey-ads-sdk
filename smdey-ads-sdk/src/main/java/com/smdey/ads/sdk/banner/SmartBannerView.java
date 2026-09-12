@@ -332,6 +332,15 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @Override
+    protected void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Activity activity = getActivity(getContext());
+        if (activity != null) {
+            applyDynamicHeight(activity);
+        }
+    }
+
     public void showLoadingState() {
         if (isAdsRemovedOrDisabled()) {
             hideAll();

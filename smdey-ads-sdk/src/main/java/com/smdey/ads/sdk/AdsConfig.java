@@ -19,6 +19,7 @@ public final class AdsConfig {
     private final String interstitialId;
     private final String rewardedId;
     private final String appOpenId;
+    private final String nativeId;
     private final AdsRemovedProvider adsRemovedProvider;
     private final AdLoadingOverlayProvider loadingOverlayProvider;
     private final String testDeviceId;
@@ -27,6 +28,7 @@ public final class AdsConfig {
     private final boolean interstitialEnabled;
     private final boolean rewardedEnabled;
     private final boolean appOpenEnabled;
+    private final boolean nativeEnabled;
     private final int interstitialFrequency;
     private final String tag;
     private final Set<Class<? extends Activity>> excludedAppOpenActivities;
@@ -41,6 +43,7 @@ public final class AdsConfig {
         this.interstitialId = builder.interstitialId;
         this.rewardedId = builder.rewardedId;
         this.appOpenId = builder.appOpenId;
+        this.nativeId = builder.nativeId;
         this.testDeviceId = builder.testDeviceId;
         this.adsRemovedProvider = builder.adsRemovedProvider;
         this.loadingOverlayProvider = builder.loadingOverlayProvider;
@@ -49,6 +52,7 @@ public final class AdsConfig {
         this.interstitialEnabled = builder.interstitialEnabled;
         this.rewardedEnabled = builder.rewardedEnabled;
         this.appOpenEnabled = builder.appOpenEnabled;
+        this.nativeEnabled = builder.nativeEnabled;
         this.interstitialFrequency = builder.interstitialFrequency;
         this.tag = builder.tag;
         this.excludedAppOpenActivities = Collections.unmodifiableSet(new HashSet<>(builder.excludedAppOpenActivities));
@@ -63,6 +67,7 @@ public final class AdsConfig {
     public static final String TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712";
     public static final String TEST_REWARDED = "ca-app-pub-3940256099942544/5224354917";
     public static final String TEST_APP_OPEN = "ca-app-pub-3940256099942544/9257395921";
+    public static final String TEST_NATIVE = "ca-app-pub-3940256099942544/2247696110";
 
     @NonNull
     public String getAppId() {
@@ -105,6 +110,14 @@ public final class AdsConfig {
     }
 
     @Nullable
+    public String getNativeId() {
+        if (isDebug && nativeId != null && !nativeId.isEmpty()) {
+            return TEST_NATIVE;
+        }
+        return nativeId;
+    }
+
+    @Nullable
     public AdsRemovedProvider getAdsRemovedProvider() {
         return adsRemovedProvider;
     }
@@ -143,6 +156,10 @@ public final class AdsConfig {
         return appOpenEnabled;
     }
 
+    public boolean isNativeEnabled() {
+        return nativeEnabled;
+    }
+
     public int getInterstitialFrequency() {
         return interstitialFrequency;
     }
@@ -178,6 +195,7 @@ public final class AdsConfig {
         private String interstitialId;
         private String rewardedId;
         private String appOpenId;
+        private String nativeId;
         private String testDeviceId;
         private AdsRemovedProvider adsRemovedProvider;
         private AdLoadingOverlayProvider loadingOverlayProvider;
@@ -186,6 +204,7 @@ public final class AdsConfig {
         private boolean interstitialEnabled = true;
         private boolean rewardedEnabled = true;
         private boolean appOpenEnabled = true;
+        private boolean nativeEnabled = true;
         private int interstitialFrequency = 3;
         private String tag = "SMDEY_ADS";
         private final Set<Class<? extends Activity>> excludedAppOpenActivities = new HashSet<>();
@@ -215,6 +234,16 @@ public final class AdsConfig {
 
         public Builder setAppOpenId(String appOpenId) {
             this.appOpenId = appOpenId;
+            return this;
+        }
+
+        public Builder setNativeId(String nativeId) {
+            this.nativeId = nativeId;
+            return this;
+        }
+
+        public Builder setNativeEnabled(boolean enabled) {
+            this.nativeEnabled = enabled;
             return this;
         }
 

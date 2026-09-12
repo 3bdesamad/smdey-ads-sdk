@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.view.WindowMetrics;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -33,10 +34,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class BannerManager {
 
+    /**
+     * Host container callback for banner load, failure, and visibility states.
+     * <p>
+     * Guaranteed to be executed on the Android UI (Main) thread.
+     */
     public interface HostCallback {
+        @MainThread
         void onBannerLoaded();
+
+        @MainThread
         void onBannerFailed();
+
+        @MainThread
         void onBannerHidden();
+
+        @MainThread
         void onBannerPending();
     }
 
@@ -222,6 +235,7 @@ public final class BannerManager {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     private AdSize getBannerAdSize(@NonNull Activity activity) {
         Context context = activity.getApplicationContext() != null ? activity.getApplicationContext() : activity;
 

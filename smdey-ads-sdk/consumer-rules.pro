@@ -30,4 +30,16 @@
     -keep class com.smdey.ads.sdk.banner.ShimmerSkeletonView {
         public <init>(...);
         public *;
+    }
+
+    # 6. SmartNativeAdView & NativeAd Components
+    -keep class com.smdey.ads.sdk.nativead.SmartNativeAdView {
+        public <init>(...);
+        public *;
+    }
+    -keep class com.smdey.ads.sdk.nativead.NativeAdBinder {
+        public *;
+    }
+    -keep class com.smdey.ads.sdk.nativead.NativeAdManager** {
+        public *;
     }    

@@ -16,6 +16,7 @@ public class MyApplication extends Application {
                 .setInterstitialId(AdConfig.INTERSTITIAL)
                 .setRewardedId(AdConfig.REWARDED)
                 .setAppOpenId(AdConfig.APP_OPEN)
+                .setNativeId(AdConfig.NATIVE)
                 .setDebug(AdConfig.IS_DEBUG)
                 .setTag(Constants.TAG)
                 .setInterstitialInterval(8) // Show interstitial every x clicks

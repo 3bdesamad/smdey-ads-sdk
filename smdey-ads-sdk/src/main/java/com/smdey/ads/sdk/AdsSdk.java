@@ -22,6 +22,7 @@ import com.smdey.ads.sdk.core.FullScreenAdCoordinator;
 import com.smdey.ads.sdk.core.LifecycleGuard;
 import com.smdey.ads.sdk.core.SdkGate;
 import com.smdey.ads.sdk.interstitial.InterstitialManager;
+import com.smdey.ads.sdk.nativead.NativeAdManager;
 import com.smdey.ads.sdk.rewarded.RewardedManager;
 
 import java.lang.ref.WeakReference;
@@ -39,6 +40,7 @@ public final class AdsSdk {
     private final InterstitialManager interstitialManager;
     private final RewardedManager rewardedManager;
     private final AppOpenManager appOpenManager;
+    private final NativeAdManager nativeAdManager;
     private WeakReference<Activity> currentActivityRef;
     private boolean startupStableDone = false;
 
@@ -52,6 +54,7 @@ public final class AdsSdk {
         this.interstitialManager = new InterstitialManager(config, sdkGate, consentManager, fullScreenCoordinator);
         this.rewardedManager = new RewardedManager(config, sdkGate, consentManager, fullScreenCoordinator);
         this.appOpenManager = new AppOpenManager(config, sdkGate, consentManager, fullScreenCoordinator);
+        this.nativeAdManager = new NativeAdManager(config, sdkGate, consentManager);
 
         if (context instanceof Application) {
             registerLifecycleCallbacks((Application) context);
@@ -104,6 +107,10 @@ public final class AdsSdk {
         return config;
     }
 
+    public boolean isAdsRemoved() {
+        return config.isAdsRemoved();
+    }
+
     @NonNull
     public SdkGate sdk() {
         return sdkGate;
@@ -127,6 +134,11 @@ public final class AdsSdk {
     @NonNull
     public AppOpenManager appOpen() {
         return appOpenManager;
+    }
+
+    @NonNull
+    public NativeAdManager nativeAd() {
+        return nativeAdManager;
     }
 
     @NonNull

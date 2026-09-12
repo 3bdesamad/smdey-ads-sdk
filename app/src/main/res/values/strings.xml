@@ -2,6 +2,7 @@
     <string name="app_name">Smdey Ads Demo</string>
     <string name="loading_ad">Loading Ad…</string>
     <string name="please_wait">Please wait a moment</string>
+    <string name="ads_ad_badge">Ad</string>
 
     <string name="title_activity_main">Screen 1: Main Demo</string>
     <string name="title_activity_second">Screen 2: Multi-Banner Test</string>
@@ -10,7 +11,7 @@
     <string name="show_interstitial">Show Interstitial Ad</string>
     <string name="show_rewarded">Show Rewarded Ad</string>
     <string name="show_app_open">Show App Open Ad</string>
-    <string name="open_second_activity">Open Screen 2 (Test Banner)</string>
+    <string name="open_second_activity">Open Screen 2 (Banner &amp; Native Ad)</string>
     <string name="open_third_activity">Open Screen 3 (Deep Stack)</string>
     <string name="back_to_main">Back to Screen 1</string>
     <string name="back_to_second">Back to Screen 2</string>

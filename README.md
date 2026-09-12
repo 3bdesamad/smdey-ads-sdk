@@ -15,6 +15,7 @@ A high-performance, lifecycle-safe, and low-end device optimized Google Mobile A
 - ⚡ **Cold-Start Protection (`SdkGate`)**: Defers SDK initialization off critical paths to ensure 60fps startup and zero UI freezes on low-end devices.
 - 🛡️ **Full-Screen Ad Coordinator**: Thread-safe synchronization preventing Interstitial, Rewarded, and App Open ads from colliding or showing concurrently.
 - ♻️ **Shared Banner View (`SmartBannerView`)**: Pooled, shared `AdView` reused across screens with dynamic adaptive height calculation, built-in native pulse skeleton placeholders, and zero memory leaks.
+- 🖼️ **Decoupled Native Ads (`SmartNativeAdView`)**: Zero-XML library architecture. Uses your app's XML templates (`app:ad_layout="@layout/..."`), automatically binds views, displays a GPU pulse skeleton while loading, and frees Bitmap memory on destroy.
 - ⏱️ **Debounced Interstitials & Frequency Clicks**: Frequency click counter (`showAdWithLoadingOverlayByClick`), smart pre-caching, and customizable loading overlay dialogs.
 - 🎁 **Standard Rewarded Ads**: User-triggered opt-in reward sessions with decoupled load and show callbacks.
 - 📱 **Lifecycle-Aware App Open Ads**: Automatic foreground detection via `ProcessLifecycleOwner`, configurable cooldown timer, startup preload delay, and window focus guard.
@@ -86,6 +87,7 @@ public class MyApplication extends Application {
         // is true, the SDK automatically serves Google's official test ad units!
         AdsConfig config = new AdsConfig.Builder("ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy")
                 .setBannerId("ca-app-pub-xxxxxxxxxxxxxxxx/bbbbbbbbbb")
+                .setNativeId("ca-app-pub-xxxxxxxxxxxxxxxx/nnnnnnnnnn")
                 .setInterstitialId("ca-app-pub-xxxxxxxxxxxxxxxx/iiiiiiiiii")
                 .setRewardedId("ca-app-pub-xxxxxxxxxxxxxxxx/rrrrrrrrrr")
                 .setAppOpenId("ca-app-pub-xxxxxxxxxxxxxxxx/oooooooooo")
@@ -108,7 +110,7 @@ public class MyApplication extends Application {
 ```
 
 > [!TIP]
-> **Automatic Test Ad Unit Switching**: You do not have to write ternary checks or manage test IDs manually. Simply set your real production IDs in `AdsConfig.Builder`. When `.setDebug(BuildConfig.DEBUG)` is enabled, the SDK automatically serves official Google test ad units (`TEST_APP_ID`, `TEST_BANNER`, `TEST_INTERSTITIAL`, `TEST_REWARDED`, `TEST_APP_OPEN`), protecting your AdMob account from self-clicking strikes during development.
+> **Automatic Test Ad Unit Switching**: You do not have to write ternary checks or manage test IDs manually. Simply set your real production IDs in `AdsConfig.Builder`. When `.setDebug(BuildConfig.DEBUG)` is enabled, the SDK automatically serves official Google test ad units (`TEST_APP_ID`, `TEST_BANNER`, `TEST_NATIVE`, `TEST_INTERSTITIAL`, `TEST_REWARDED`, `TEST_APP_OPEN`), protecting your AdMob account from self-clicking strikes during development.
 >
 > **Smart Auto-Configuration**: All Ad Unit IDs are completely optional! If your app does not use a format (e.g. Rewarded or App Open), **simply omit its `.set...Id()` call**. The SDK automatically disables that format with zero wasted network or memory allocations.
 
@@ -130,7 +132,43 @@ Place `SmartBannerView` anywhere in your XML layout:
 
 ---
 
-### 3. Show Interstitial Ad on Navigation / Button Click
+### 3. Add Smart Native Ad in XML Layout
+
+Add `SmartNativeAdView` directly in your XML with your preferred template layout (`small` or `medium`):
+
+```xml
+<!-- Small Native Ad (e.g., in Recycler item or bottom banner position) -->
+<com.smdey.ads.sdk.nativead.SmartNativeAdView
+    android:id="@+id/smartNativeAd"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:ad_layout="@layout/layout_native_ad_small" />
+
+<!-- Or Medium / Large Native Ad with MediaView -->
+<com.smdey.ads.sdk.nativead.SmartNativeAdView
+    android:id="@+id/smartNativeAd"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:ad_layout="@layout/layout_native_ad_medium" />
+```
+
+#### How it works:
+1. **Zero Java Boilerplate**: Automatically loads and binds when attached to the window. No Java initialization is required in your Activity.
+2. **Decoupled Styling**: Templates live in your `:app` module (`layout_native_ad_small.xml` & `layout_native_ad_medium.xml`).
+3. **Dark / Light Mode Support**: By mapping the template color references to theme-aware aliases in `res/values/colors.xml` and `res/values-night/colors.xml` (e.g. `@color/ads_native_card`, `@color/ads_native_cta_bg`), the native ad seamlessly blends into your app's theme.
+4. **Lifecycle & Memory Safe**: Destroys native ad references and bitmaps immediately when detached or on Activity destroy to avoid memory leaks.
+5. **Dynamic Programmatic Loading (Optional)**:
+```java
+// Refresh current ad:
+binding.smartNativeAd.loadAd();
+
+// Or switch template dynamically:
+binding.smartNativeAd.loadAd(R.layout.layout_native_ad_medium);
+```
+
+---
+
+### 4. Show Interstitial Ad on Navigation / Button Click
 
 #### Frequency Click Interstitial (e.g., every 6 clicks):
 ```java
@@ -159,7 +197,7 @@ AdsSdk.getInstance().interstitial().showAdWithLoadingOverlay(this, () -> {
 
 ---
 
-### 4. Load & Show Standard Rewarded Ads
+### 5. Load & Show Standard Rewarded Ads
 
 ```java
 // 1. If ad is already cached in RAM, show immediately:
@@ -187,7 +225,7 @@ if (AdsSdk.getInstance().rewarded().isAdReady()) {
 
 ---
 
-### 5. App Open Ads
+### 6. App Open Ads
 
 App Open ads are automatically displayed when returning from background via `ProcessLifecycleOwner`.
 
@@ -225,7 +263,7 @@ public class LauncherActivity extends BaseActivity implements OpenAdVisibilityCo
 
 ---
 
-### 6. Request GDPR / UMP Consent & Privacy Options
+### 7. Request GDPR / UMP Consent & Privacy Options
 
 #### Gather Consent on App Launch:
 ```java
@@ -248,7 +286,7 @@ binding.btnPrivacyOptions.setOnClickListener(v -> {
 
 ---
 
-### 7. Remove Ads for VIP / In-App Purchases
+### 8. Remove Ads for VIP / In-App Purchases
 
 Configure the dynamic provider in `AdsConfig`:
 ```java
@@ -260,7 +298,7 @@ Whenever `isAdsRemoved()` returns `true`, all ad requests, banners, and full-scr
 
 ---
 
-### 8. Custom Loading Dialog Overlay
+### 9. Custom Loading Dialog Overlay
 
 Provide your own custom dialog to be displayed while loading interstitials:
 ```java
@@ -300,6 +338,18 @@ The library automatically ships consumer ProGuard rules inside the AAR (`consume
 # SmartBannerView XML & Public API
 -keep class com.smdey.ads.sdk.banner.SmartBannerView {
     public <init>(...);
+    public *;
+}
+
+# SmartNativeAdView & NativeAd Components
+-keep class com.smdey.ads.sdk.nativead.SmartNativeAdView {
+    public <init>(...);
+    public *;
+}
+-keep class com.smdey.ads.sdk.nativead.NativeAdBinder {
+    public *;
+}
+-keep class com.smdey.ads.sdk.nativead.NativeAdManager** {
     public *;
 }
 

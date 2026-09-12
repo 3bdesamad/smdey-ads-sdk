@@ -32,18 +32,25 @@
                 android:text="@string/title_activity_third"
                 android:fontFamily="@font/quick_sand_bold"
                 android:textSize="22sp"
-                android:textColor="@color/white"
+                android:textColor="@color/textColor"
                 android:layout_marginBottom="@dimen/dimen_24" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="This is Screen 3 (Deep Stack). Going back to Screen 2 or Screen 1 will verify that banners resume without duplicate view crashes or memory leaks."
+                android:text="This screen tests the Large Native Ad with MediaView (Video/Graphic) alongside banner retention across deep screen navigation."
                 android:fontFamily="@font/quick_sand_regular"
                 android:textSize="15sp"
                 android:textColor="@color/tintColor"
                 android:gravity="center"
-                android:layout_marginBottom="@dimen/dimen_32" />
+                android:layout_marginBottom="@dimen/dimen_24" />
+
+            <com.smdey.ads.sdk.nativead.SmartNativeAdView
+                android:id="@+id/smartNativeAdLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_24"
+                app:ad_layout="@layout/layout_native_ad_large" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBackToSecond"

@@ -1,5 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--genaral spacing-->
+    <dimen name="ads_native_padding">@dimen/dimen_12</dimen>
+    <dimen name="ads_native_cta_radius">@dimen/dimen_8</dimen>
 
 
     <dimen name="dimen_0">0dp</dimen>
