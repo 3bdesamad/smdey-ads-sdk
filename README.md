@@ -20,7 +20,7 @@ A high-performance, lifecycle-safe, and low-end device optimized Google Mobile A
 - 🎁 **Standard Rewarded Ads**: User-triggered opt-in reward sessions with decoupled load and show callbacks.
 - 📱 **Lifecycle-Aware App Open Ads**: Automatic foreground detection via `ProcessLifecycleOwner`, configurable cooldown timer, startup preload delay, and window focus guard.
 - 🛡️ **Google UMP (GDPR) Ready**: European Economic Area (EEA) consent gathering and Privacy Options form management built-in.
-- 🔄 **Automatic Test Ad Unit Switching**: Never change IDs between dev and release. Supply your real production IDs in `AdsConfig.Builder` — when `.setDebug(BuildConfig.DEBUG)` is enabled, the SDK automatically serves Google's official test ad units, protecting your account from policy violations.
+- 🛡️ **Test Device & Safe Debugging**: Supply test ad units in debug builds or configure `.setTestDeviceId("...")` to safely test without risking policy strikes.
 - 💎 **Dynamic In-App Purchase Provider**: Supply `.setAdsRemovedProvider(SharedPref.getInstance(this)::isAdsRemoved)` to instantly disable all ad requests and views across the app.
 - 🚫 **Declarative Activity Exclusion**: Easily suppress App Open ads on selected screens (e.g., Splash, Onboarding, Paywalls).
 
@@ -82,16 +82,14 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // 💡 Pass your real AdMob production IDs here.
-        // You NEVER have to change or swap IDs manually: when .setDebug(BuildConfig.DEBUG)
-        // is true, the SDK automatically serves Google's official test ad units!
+        // 💡 Pass your AdMob ad unit IDs here (e.g. from BuildConfig or your app's AdConfig)
         AdsConfig config = new AdsConfig.Builder("ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy")
                 .setBannerId("ca-app-pub-xxxxxxxxxxxxxxxx/bbbbbbbbbb")
                 .setNativeId("ca-app-pub-xxxxxxxxxxxxxxxx/nnnnnnnnnn")
                 .setInterstitialId("ca-app-pub-xxxxxxxxxxxxxxxx/iiiiiiiiii")
                 .setRewardedId("ca-app-pub-xxxxxxxxxxxxxxxx/rrrrrrrrrr")
                 .setAppOpenId("ca-app-pub-xxxxxxxxxxxxxxxx/oooooooooo")
-                .setDebug(BuildConfig.DEBUG)          // Automatically switches to Google test IDs in debug builds!
+                .setDebug(BuildConfig.DEBUG)          // Enables debug logging & verbose lifecycle tags
                 .setTag("SMDEY_ADS")
                 .setInterstitialInterval(6)           // Show interstitial every 6 clicks
                 .excludeAppOpenActivities(LauncherActivity.class) // Suppress App Open on splash/launcher
@@ -110,8 +108,6 @@ public class MyApplication extends Application {
 ```
 
 > [!TIP]
-> **Automatic Test Ad Unit Switching**: You do not have to write ternary checks or manage test IDs manually. Simply set your real production IDs in `AdsConfig.Builder`. When `.setDebug(BuildConfig.DEBUG)` is enabled, the SDK automatically serves official Google test ad units (`TEST_APP_ID`, `TEST_BANNER`, `TEST_NATIVE`, `TEST_INTERSTITIAL`, `TEST_REWARDED`, `TEST_APP_OPEN`), protecting your AdMob account from self-clicking strikes during development.
->
 > **Smart Auto-Configuration**: All Ad Unit IDs are completely optional! If your app does not use a format (e.g. Rewarded or App Open), **simply omit its `.set...Id()` call**. The SDK automatically disables that format with zero wasted network or memory allocations.
 
 ---

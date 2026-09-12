@@ -62,58 +62,33 @@ public final class AdsConfig {
         this.bannerRetryCooldownMs = builder.bannerRetryCooldownMs;
     }
 
-    public static final String TEST_APP_ID = "ca-app-pub-3940256099942544~3347511713";
-    public static final String TEST_BANNER = "ca-app-pub-3940256099942544/6300978111";
-    public static final String TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712";
-    public static final String TEST_REWARDED = "ca-app-pub-3940256099942544/5224354917";
-    public static final String TEST_APP_OPEN = "ca-app-pub-3940256099942544/9257395921";
-    public static final String TEST_NATIVE = "ca-app-pub-3940256099942544/2247696110";
-
     @NonNull
     public String getAppId() {
-        if (isDebug) {
-            return TEST_APP_ID;
-        }
         return appId != null ? appId : "";
     }
 
     @Nullable
     public String getBannerId() {
-        if (isDebug && bannerId != null && !bannerId.isEmpty()) {
-            return TEST_BANNER;
-        }
         return bannerId;
     }
 
     @Nullable
     public String getInterstitialId() {
-        if (isDebug && interstitialId != null && !interstitialId.isEmpty()) {
-            return TEST_INTERSTITIAL;
-        }
         return interstitialId;
     }
 
     @Nullable
     public String getRewardedId() {
-        if (isDebug && rewardedId != null && !rewardedId.isEmpty()) {
-            return TEST_REWARDED;
-        }
         return rewardedId;
     }
 
     @Nullable
     public String getAppOpenId() {
-        if (isDebug && appOpenId != null && !appOpenId.isEmpty()) {
-            return TEST_APP_OPEN;
-        }
         return appOpenId;
     }
 
     @Nullable
     public String getNativeId() {
-        if (isDebug && nativeId != null && !nativeId.isEmpty()) {
-            return TEST_NATIVE;
-        }
         return nativeId;
     }
 
