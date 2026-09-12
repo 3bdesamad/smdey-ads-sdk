@@ -20,7 +20,7 @@ A high-performance, lifecycle-safe, and low-end device optimized Google Mobile A
 - 📱 **Lifecycle-Aware App Open Ads**: Automatic foreground detection via `ProcessLifecycleOwner`, configurable cooldown timer, startup preload delay, and window focus guard.
 - 🛡️ **Google UMP (GDPR) Ready**: European Economic Area (EEA) consent gathering and Privacy Options form management built-in.
 - 🔄 **Automatic Test Ad Unit Switching**: Never change IDs between dev and release. Supply your real production IDs in `AdsConfig.Builder` — when `.setDebug(BuildConfig.DEBUG)` is enabled, the SDK automatically serves Google's official test ad units, protecting your account from policy violations.
-- 💎 **Dynamic In-App Purchase Provider**: Supply `.setAdsRemovedProvider(() -> isVipUser())` to instantly disable all ad requests and views across the app.
+- 💎 **Dynamic In-App Purchase Provider**: Supply `.setAdsRemovedProvider(SharedPref.getInstance(this)::isAdsRemoved)` to instantly disable all ad requests and views across the app.
 - 🚫 **Declarative Activity Exclusion**: Easily suppress App Open ads on selected screens (e.g., Splash, Onboarding, Paywalls).
 
 ---
@@ -98,7 +98,7 @@ public class MyApplication extends Application {
                 .setLoadingOverlayTimeoutMs(4000L)     // 4s max wait for interstitial loading overlay
                 .setBannerRetryCooldownMs(15000L)      // 15s retry cooldown after banner failure
                 //.setTestDeviceId("YOUR_HASHED_TEST_DEVICE_ID")
-                .setAdsRemovedProvider(() -> isUserVip()) // VIP / In-App Purchase provider
+                .setAdsRemovedProvider(SharedPref.getInstance(this)::isAdsRemoved) // VIP / In-App Purchase provider
                 .setLoadingOverlayProvider(Dialogs::showLoadingAd) // Custom loading dialog
                 .build();
 
@@ -253,10 +253,10 @@ binding.btnPrivacyOptions.setOnClickListener(v -> {
 Configure the dynamic provider in `AdsConfig`:
 ```java
 new AdsConfig.Builder(...)
-    .setAdsRemovedProvider(() -> userPreferences.isVipUser())
+    .setAdsRemovedProvider(SharedPref.getInstance(this)::isAdsRemoved)
     .build();
 ```
-Whenever `isVipUser()` returns `true`, all ad requests, banners, and full-screen interstitials are instantly disabled across the entire application with zero performance penalty.
+Whenever `isAdsRemoved()` returns `true`, all ad requests, banners, and full-screen interstitials are instantly disabled across the entire application with zero performance penalty.
 
 ---
 
