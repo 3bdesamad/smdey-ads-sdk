@@ -27,6 +27,7 @@ import com.smdey.ads.sdk.AdsConfig;
 import com.smdey.ads.sdk.consent.ConsentManager;
 import com.smdey.ads.sdk.core.AppExecutors;
 import com.smdey.ads.sdk.core.LifecycleGuard;
+import com.smdey.ads.sdk.core.NetworkStateMonitor;
 import com.smdey.ads.sdk.core.SdkGate;
 
 import java.lang.ref.WeakReference;
@@ -133,6 +134,11 @@ public final class BannerManager {
             attachToContainer(container);
             callback.onBannerLoaded();
             Log.d(config.getTag(), "✅ Banner - Attached to " + activity.getClass().getSimpleName() + ".");
+            return;
+        }
+
+        if (!NetworkStateMonitor.isOnline()) {
+            callback.onBannerHidden();
             return;
         }
 

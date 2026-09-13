@@ -19,6 +19,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.smdey.ads.sdk.AdsSdk;
 import com.smdey.ads.sdk.core.LifecycleGuard;
+import com.smdey.ads.sdk.core.NetworkStateMonitor;
 
 public final class SmartBannerView extends FrameLayout implements DefaultLifecycleObserver {
 
@@ -103,7 +104,9 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
             bannerManager = AdsSdk.getInstance().banner();
         }
 
-        if (isAdsRemovedOrDisabled()) {
+        NetworkStateMonitor.init(context);
+
+        if (isAdsRemovedOrDisabled() || !NetworkStateMonitor.isOnline()) {
             hideAll();
             return;
         }
@@ -149,7 +152,7 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
 
     @Override
     public void onResume(@NonNull LifecycleOwner owner) {
-        if (isAdsRemovedOrDisabled()) {
+        if (isAdsRemovedOrDisabled() || !NetworkStateMonitor.isOnline()) {
             hideAll();
             return;
         }
@@ -278,7 +281,7 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     }
 
     private void attachOrLoadNow() {
-        if (isAdsRemovedOrDisabled()) {
+        if (isAdsRemovedOrDisabled() || !NetworkStateMonitor.isOnline()) {
             hideAll();
             return;
         }
@@ -342,7 +345,7 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     }
 
     public void showLoadingState() {
-        if (isAdsRemovedOrDisabled()) {
+        if (isAdsRemovedOrDisabled() || !NetworkStateMonitor.isOnline()) {
             hideAll();
             return;
         }

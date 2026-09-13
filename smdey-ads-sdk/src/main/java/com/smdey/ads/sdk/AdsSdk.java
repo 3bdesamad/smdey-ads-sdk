@@ -20,6 +20,7 @@ import com.smdey.ads.sdk.consent.ConsentManager;
 import com.smdey.ads.sdk.core.AppExecutors;
 import com.smdey.ads.sdk.core.FullScreenAdCoordinator;
 import com.smdey.ads.sdk.core.LifecycleGuard;
+import com.smdey.ads.sdk.core.NetworkStateMonitor;
 import com.smdey.ads.sdk.core.SdkGate;
 import com.smdey.ads.sdk.interstitial.InterstitialManager;
 import com.smdey.ads.sdk.nativead.NativeAdManager;
@@ -55,6 +56,7 @@ public final class AdsSdk {
         this.rewardedManager = new RewardedManager(config, sdkGate, consentManager, fullScreenCoordinator);
         this.appOpenManager = new AppOpenManager(config, sdkGate, consentManager, fullScreenCoordinator);
         this.nativeAdManager = new NativeAdManager(config, sdkGate, consentManager);
+        NetworkStateMonitor.init(appContext);
 
         if (context instanceof Application) {
             registerLifecycleCallbacks((Application) context);
