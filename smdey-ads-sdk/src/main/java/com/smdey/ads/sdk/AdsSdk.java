@@ -63,7 +63,7 @@ public final class AdsSdk {
             hookProcessLifecycle();
         }
 
-        Log.i(config.getTag(), "✅ AdsSdk - Initialized (v1.0.4 Next-Gen).");
+        Log.i(config.getTag(), "✅ AdsSdk - Initialized (v1.0.5 Next-Gen).");
     }
 
     public static synchronized void init(@NonNull Context context, @NonNull AdsConfig config) {
