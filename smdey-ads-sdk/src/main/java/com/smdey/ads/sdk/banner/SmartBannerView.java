@@ -30,6 +30,7 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     private ShimmerSkeletonView shimmerSkeletonView;
     private BannerManager bannerManager;
     private boolean appOpenBridgeActive;
+    private static boolean initialColdStartDone = false;
 
     private final BannerManager.HostCallback hostCallback = new BannerManager.HostCallback() {
         @Override
@@ -257,7 +258,9 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
     }
 
     private void scheduleAttachOrLoad() {
-        scheduleAttachOrLoad(300L);
+        long delayMs = !initialColdStartDone ? 2000L : 300L;
+        initialColdStartDone = true;
+        scheduleAttachOrLoad(delayMs);
     }
 
     private void scheduleAttachOrLoad(long delayMs) {

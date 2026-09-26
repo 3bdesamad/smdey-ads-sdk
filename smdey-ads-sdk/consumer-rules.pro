@@ -42,4 +42,10 @@
     }
     -keep class com.smdey.ads.sdk.nativead.NativeAdManager** {
         public *;
-    }    
+    }
+
+    # 7. AndroidX WorkManager & Room Database Safety (for GMA SDK internal tasks)
+    -keep class * extends androidx.room.RoomDatabase { *; }
+    -dontwarn androidx.room.paging.**
+    -keep class androidx.work.** { *; }
+    -dontwarn androidx.work.**

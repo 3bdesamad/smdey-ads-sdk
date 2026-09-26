@@ -135,7 +135,7 @@ public final class SdkGate {
             return;
         }
 
-        long delay = 800L; // Safe deferral to let Activity first frame draw smoothly
+        long delay = 2000L; // Safe deferral to match 2.0s startup window and prevent storage I/O contention
         state.set(State.WAITING_SAFE_WINDOW);
 
         AppExecutors.getInstance().mainThread().postDelayed(this::startInitialization, delay);
