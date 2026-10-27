@@ -99,11 +99,13 @@ public final class AppOpenManager {
             return;
         }
 
+        final WeakReference<Activity> activityRef = new WeakReference<>(activity);
         if (!consentManager.canRequestAds()) {
             Log.d(config.getTag(), "⏳ App Open - Consent not ready. Waiting before preload.");
             consentManager.gatherConsent(activity, () -> {
-                if (consentManager.canRequestAds()) {
-                    scheduleFirstPreloadIfAllowed(activity);
+                Activity currentActivity = activityRef.get();
+                if (consentManager.canRequestAds() && currentActivity != null) {
+                    scheduleFirstPreloadIfAllowed(currentActivity);
                 }
             });
             return;
@@ -111,7 +113,12 @@ public final class AppOpenManager {
 
         if (!sdkGate.isReady()) {
             Log.d(config.getTag(), "⏳ App Open - SDK not ready. Waiting before preload.");
-            sdkGate.ensureInitialized(activity, () -> scheduleFirstPreloadIfAllowed(activity));
+            sdkGate.ensureInitialized(activity, () -> {
+                Activity currentActivity = activityRef.get();
+                if (currentActivity != null) {
+                    scheduleFirstPreloadIfAllowed(currentActivity);
+                }
+            });
             return;
         }
 
@@ -120,11 +127,12 @@ public final class AppOpenManager {
             return;
         }
 
+        final Context appContext = activity.getApplicationContext();
         long delay = config.getAppOpenPreloadDelayMs();
         Log.i(config.getTag(), "⏳ App Open - Preload scheduled in " + delay + " ms.");
         executors.mainThread().postDelayed(() -> {
             preloadScheduled.set(false);
-            requestPreload(activity.getApplicationContext());
+            requestPreload(appContext);
         }, delay);
     }
 
@@ -222,10 +230,11 @@ public final class AppOpenManager {
             return;
         }
 
+        final Context appContext = activity.getApplicationContext();
         AppOpenAd adToShow = appOpenAd;
         if (adToShow == null || !isAdAvailable()) {
             Log.d(config.getTag(), "⚠️ App Open - No cached ad available. Preloading...");
-            requestPreload(activity.getApplicationContext());
+            requestPreload(appContext);
             return;
         }
 
@@ -239,6 +248,7 @@ public final class AppOpenManager {
             if (decorView != null) {
                 ViewTreeObserver vto = decorView.getViewTreeObserver();
                 if (vto.isAlive()) {
+                    final WeakReference<Activity> activityRef = new WeakReference<>(activity);
                     final ViewTreeObserver.OnWindowFocusChangeListener[] listenerRef = new ViewTreeObserver.OnWindowFocusChangeListener[1];
                     final Runnable[] timeoutRef = new Runnable[1];
 
@@ -251,8 +261,9 @@ public final class AppOpenManager {
                                     decorView.getViewTreeObserver().removeOnWindowFocusChangeListener(listenerRef[0]);
                                 }
                                 executors.mainThread().removeCallbacks(timeoutRef[0]);
-                                if (LifecycleGuard.isActivityValid(activity)) {
-                                    showIfAvailable(activity);
+                                Activity currentActivity = activityRef.get();
+                                if (LifecycleGuard.isActivityValid(currentActivity)) {
+                                    showIfAvailable(currentActivity);
                                 }
                             }
                         }
@@ -263,8 +274,9 @@ public final class AppOpenManager {
                         if (decorView.getViewTreeObserver().isAlive()) {
                             decorView.getViewTreeObserver().removeOnWindowFocusChangeListener(listenerRef[0]);
                         }
-                        if (LifecycleGuard.isActivityValid(activity)) {
-                            showIfAvailable(activity);
+                        Activity currentActivity = activityRef.get();
+                        if (LifecycleGuard.isActivityValid(currentActivity)) {
+                            showIfAvailable(currentActivity);
                         }
                     };
 
@@ -312,7 +324,7 @@ public final class AppOpenManager {
                     lastShowTimestamp = SystemClock.elapsedRealtime();
                     Log.i(config.getTag(), "✅ App Open - Ad dismissed. Cooldown started: " + config.getAppOpenCooldownMs() + " ms (" + (config.getAppOpenCooldownMs() / 1000L) + "s).");
 
-                    requestPreload(activity.getApplicationContext());
+                    requestPreload(appContext);
                 });
             }
 
@@ -327,7 +339,7 @@ public final class AppOpenManager {
                     showing.set(false);
                     fullScreenCoordinator.releaseShowLock();
                     Log.w(config.getTag(), "❌ App Open - Failed to show ad: " + adError.getMessage());
-                    requestPreload(activity.getApplicationContext());
+                    requestPreload(appContext);
                 });
             }
         });
@@ -338,7 +350,7 @@ public final class AppOpenManager {
             Log.e(config.getTag(), "❌ App Open - Exception showing ad: " + e.getMessage(), e);
             showing.set(false);
             fullScreenCoordinator.releaseShowLock();
-            requestPreload(activity.getApplicationContext());
+            requestPreload(appContext);
         }
     }
 

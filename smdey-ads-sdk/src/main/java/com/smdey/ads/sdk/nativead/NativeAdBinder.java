@@ -110,7 +110,7 @@ public final class NativeAdBinder {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends View> T findView(@NonNull View root, @NonNull Context context, @NonNull String idName) {
+    static <T extends View> T findView(@NonNull View root, @NonNull Context context, @NonNull String idName) {
         Integer cachedId = RES_ID_CACHE.get(idName);
         int id;
         if (cachedId != null) {

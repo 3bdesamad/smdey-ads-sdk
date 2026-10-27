@@ -163,9 +163,16 @@ public final class AdsSdk {
     }
 
     private void triggerStartupConsent(@NonNull Activity activity) {
+        final WeakReference<Activity> activityRef = new WeakReference<>(activity);
         consentManager.gatherConsent(activity, () -> {
             if (consentManager.canRequestAds()) {
-                sdkGate.notifyConsentResolved(activity);
+                Activity current = activityRef.get();
+                if (current == null || !LifecycleGuard.isActivityValid(current)) {
+                    current = getCurrentActivity();
+                }
+                if (current != null && LifecycleGuard.isActivityValid(current)) {
+                    sdkGate.notifyConsentResolved(current);
+                }
             }
         });
     }
@@ -210,8 +217,20 @@ public final class AdsSdk {
                         return;
                     }
                     startupStableDone = true;
+                    boolean alreadyHadConsent = consentManager.canRequestAds();
                     markStartupStable(activity);
-                    triggerStartupConsent(activity);
+                    if (alreadyHadConsent) {
+                        final WeakReference<Activity> activityRef = new WeakReference<>(activity);
+                        sdkGate.ensureInitialized(activity, () -> {
+                            Activity current = activityRef.get();
+                            if (current == null || !LifecycleGuard.isActivityValid(current)) {
+                                current = getCurrentActivity();
+                            }
+                            if (current != null && LifecycleGuard.isActivityValid(current)) {
+                                triggerStartupConsent(current);
+                            }
+                        });
+                    }
                     appOpenManager.scheduleFirstPreloadIfAllowed(activity);
                 }
             }
@@ -235,6 +254,7 @@ public final class AdsSdk {
             @Override
             public void onActivityDestroyed(@NonNull Activity activity) {
                 bannerManager.onActivityDestroyed(activity);
+                interstitialManager.onActivityDestroyed(activity);
                 Activity current = getCurrentActivity();
                 if (current == activity && currentActivityRef != null) {
                     currentActivityRef.clear();

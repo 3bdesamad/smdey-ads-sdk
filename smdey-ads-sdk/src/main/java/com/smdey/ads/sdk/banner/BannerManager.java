@@ -63,6 +63,9 @@ public final class BannerManager {
     private volatile long lastRequestTimestamp;
     private volatile int lastRequestActivityHash = 0;
     private volatile boolean bannerLoaded;
+    private volatile int cachedAdWidthDp = -1;
+    private volatile AdSize cachedAdSize;
+    private volatile int cachedBannerHeightPx = 0;
     private MutableContextWrapper contextWrapper;
     private AdView sharedAdView;
     private WeakReference<ViewGroup> currentContainerRef;
@@ -101,7 +104,16 @@ public final class BannerManager {
 
     public int getBannerHeightPx(@NonNull Activity activity) {
         try {
-            return getBannerAdSize(activity).getHeightInPixels(activity);
+            int adWidth = resolveAdWidthDp(activity);
+            if (adWidth == cachedAdWidthDp && cachedBannerHeightPx > 0) {
+                return cachedBannerHeightPx;
+            }
+            AdSize adSize = getBannerAdSizeForWidth(activity, adWidth);
+            int heightPx = adSize.getHeightInPixels(activity);
+            if (heightPx > 0) {
+                cachedBannerHeightPx = heightPx;
+            }
+            return heightPx;
         } catch (Exception e) {
             Log.e(config.getTag(), "❌ Banner - Failed to resolve banner height.", e);
             return 0;
@@ -144,22 +156,34 @@ public final class BannerManager {
 
         if (!consentManager.canRequestAds()) {
             callback.onBannerPending();
+            final WeakReference<Activity> activityRef = new WeakReference<>(activity);
             consentManager.gatherConsent(activity, () -> {
-                if (!LifecycleGuard.isActivityValid(activity)) {
+                Activity currentActivity = activityRef.get();
+                ViewGroup currentContainer = currentContainerRef != null ? currentContainerRef.get() : null;
+                HostCallback currentCallback = getCurrentCallback();
+                if (!LifecycleGuard.isActivityValid(currentActivity) || currentContainer == null || currentCallback == null) {
                     return;
                 }
                 if (!consentManager.canRequestAds()) {
-                    callback.onBannerHidden();
+                    currentCallback.onBannerHidden();
                     return;
                 }
-                attachOrLoad(activity, container, callback);
+                attachOrLoad(currentActivity, currentContainer, currentCallback);
             });
             return;
         }
 
         if (!sdkGate.isReady()) {
             callback.onBannerPending();
-            sdkGate.ensureInitialized(activity, () -> attachOrLoad(activity, container, callback));
+            final WeakReference<Activity> activityRef = new WeakReference<>(activity);
+            sdkGate.ensureInitialized(activity, () -> {
+                Activity currentActivity = activityRef.get();
+                ViewGroup currentContainer = currentContainerRef != null ? currentContainerRef.get() : null;
+                HostCallback currentCallback = getCurrentCallback();
+                if (LifecycleGuard.isActivityValid(currentActivity) && currentContainer != null && currentCallback != null) {
+                    attachOrLoad(currentActivity, currentContainer, currentCallback);
+                }
+            });
             return;
         }
 
@@ -180,7 +204,8 @@ public final class BannerManager {
         createAdViewIfNeeded(activity);
         attachToContainer(container);
 
-        Log.i(config.getTag(), "⏳ Banner - Loading on " + activity.getClass().getSimpleName() + "...");
+        final String activityName = activity.getClass().getSimpleName();
+        Log.i(config.getTag(), "⏳ Banner - Loading on " + activityName + "...");
         BannerAdRequest request = new BannerAdRequest.Builder(
                 config.getBannerId(),
                 getBannerAdSize(activity)
@@ -192,7 +217,7 @@ public final class BannerManager {
                 bannerAd.setAdEventCallback(new BannerAdEventCallback() {
                     @Override
                     public void onAdImpression() {
-                        Log.d(config.getTag(), "✅ Banner - Impression recorded on " + activity.getClass().getSimpleName() + ".");
+                        Log.d(config.getTag(), "✅ Banner - Impression recorded on " + activityName + ".");
                     }
                 });
 
@@ -204,7 +229,7 @@ public final class BannerManager {
                     if (host != null) {
                         host.onBannerLoaded();
                     }
-                    Log.i(config.getTag(), "✅ Banner - Loaded successfully on " + activity.getClass().getSimpleName() + " (Next-Gen).");
+                    Log.i(config.getTag(), "✅ Banner - Loaded successfully on " + activityName + " (Next-Gen).");
                 });
             }
 
@@ -241,39 +266,53 @@ public final class BannerManager {
     }
 
     @NonNull
-    @SuppressWarnings("deprecation")
     private AdSize getBannerAdSize(@NonNull Activity activity) {
-        Context context = activity.getApplicationContext() != null ? activity.getApplicationContext() : activity;
-
         try {
-            DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
-            int widthPx = displayMetrics.widthPixels;
-
-            if (widthPx <= 0) {
-                widthPx = Resources.getSystem().getDisplayMetrics().widthPixels;
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                try {
-                    WindowMetrics metrics = activity.getWindowManager().getCurrentWindowMetrics();
-                    int windowWidth = metrics.getBounds().width();
-                    if (windowWidth > 0) {
-                        widthPx = windowWidth;
-                    }
-                } catch (Exception ignored) {
-                }
-            }
-
-            int adWidth = (int) (widthPx / displayMetrics.density);
-            if (adWidth < 320) {
-                adWidth = 320;
-            }
-
-            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth);
+            int adWidth = resolveAdWidthDp(activity);
+            return getBannerAdSizeForWidth(activity, adWidth);
         } catch (Exception e) {
             Log.e(config.getTag(), "❌ Banner - Failed to resolve adaptive size.", e);
             return AdSize.BANNER;
         }
+    }
+
+    @NonNull
+    @SuppressWarnings("deprecation")
+    private AdSize getBannerAdSizeForWidth(@NonNull Activity activity, int adWidth) {
+        AdSize existing = cachedAdSize;
+        if (adWidth == cachedAdWidthDp && existing != null) {
+            return existing;
+        }
+        Context context = activity.getApplicationContext() != null ? activity.getApplicationContext() : activity;
+        AdSize computed = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth);
+        cachedAdWidthDp = adWidth;
+        cachedAdSize = computed;
+        cachedBannerHeightPx = 0;
+        return computed;
+    }
+
+    @SuppressWarnings("deprecation")
+    private int resolveAdWidthDp(@NonNull Activity activity) {
+        DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+        int widthPx = displayMetrics.widthPixels;
+
+        if (widthPx <= 0) {
+            widthPx = Resources.getSystem().getDisplayMetrics().widthPixels;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                WindowMetrics metrics = activity.getWindowManager().getCurrentWindowMetrics();
+                int windowWidth = metrics.getBounds().width();
+                if (windowWidth > 0) {
+                    widthPx = windowWidth;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        int adWidth = (int) (widthPx / displayMetrics.density);
+        return Math.max(320, adWidth);
     }
 
     private void createAdViewIfNeeded(@NonNull Activity activity) {

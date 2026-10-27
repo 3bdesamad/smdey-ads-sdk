@@ -17,6 +17,7 @@ import com.smdey.ads.sdk.core.AppExecutors;
 import com.smdey.ads.sdk.core.LifecycleGuard;
 import com.smdey.ads.sdk.core.SdkGate;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 
 public final class NativeAdManager {
@@ -71,8 +72,10 @@ public final class NativeAdManager {
             return;
         }
 
+        final WeakReference<Activity> activityRef = new WeakReference<>(activity);
         sdkGate.ensureInitialized(activity, () -> {
-            if (!LifecycleGuard.isActivityValid(activity)) {
+            Activity currentActivity = activityRef.get();
+            if (!LifecycleGuard.isActivityValid(currentActivity)) {
                 return;
             }
 
@@ -87,7 +90,8 @@ public final class NativeAdManager {
                 @Override
                 public void onNativeAdLoaded(@NonNull NativeAd nativeAd) {
                     AppExecutors.getInstance().mainThread().execute(() -> {
-                        if (!LifecycleGuard.isActivityValid(activity)) {
+                        Activity validActivity = activityRef.get();
+                        if (!LifecycleGuard.isActivityValid(validActivity)) {
                             nativeAd.destroy();
                             return;
                         }

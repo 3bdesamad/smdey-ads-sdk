@@ -21,6 +21,7 @@ import com.smdey.ads.sdk.core.FullScreenAdCoordinator;
 import com.smdey.ads.sdk.core.LifecycleGuard;
 import com.smdey.ads.sdk.core.SdkGate;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class RewardedManager {
@@ -81,10 +82,15 @@ public final class RewardedManager {
             Activity activity = (context instanceof Activity) ? (Activity) context : null;
             if (activity != null) {
                 Log.i(config.getTag(), "⏳ Rewarded - Waiting for consent before loading...");
+                final WeakReference<Activity> activityRef = new WeakReference<>(activity);
+                final Context appContext = context.getApplicationContext();
                 consentManager.gatherConsent(activity, () -> {
+                    Activity currentActivity = activityRef.get();
                     if (consentManager.canRequestAds()) {
-                        sdkGate.notifyConsentResolved(activity);
-                        loadAd(context, listener);
+                        if (currentActivity != null) {
+                            sdkGate.notifyConsentResolved(currentActivity);
+                        }
+                        loadAd(currentActivity != null ? currentActivity : appContext, listener);
                     } else if (listener != null) {
                         listener.onFailed();
                     }
@@ -99,7 +105,12 @@ public final class RewardedManager {
             Activity activity = (context instanceof Activity) ? (Activity) context : null;
             if (activity != null) {
                 Log.i(config.getTag(), "⏳ Rewarded - SDK initializing. Waiting for readiness before loading...");
-                sdkGate.ensureInitialized(activity, () -> loadAd(context, listener));
+                final WeakReference<Activity> activityRef = new WeakReference<>(activity);
+                final Context appContext = context.getApplicationContext();
+                sdkGate.ensureInitialized(activity, () -> {
+                    Activity currentActivity = activityRef.get();
+                    loadAd(currentActivity != null ? currentActivity : appContext, listener);
+                });
                 return;
             }
             if (listener != null) listener.onFailed();
@@ -154,6 +165,7 @@ public final class RewardedManager {
             return;
         }
 
+        final Context appContext = activity.getApplicationContext();
         RewardedAd ad = rewardedAd;
         rewardedAd = null;
 
@@ -170,7 +182,7 @@ public final class RewardedManager {
                     showing.set(false);
                     fullScreenCoordinator.releaseShowLock();
                     Log.i(config.getTag(), "✅ Rewarded - Dismissed.");
-                    loadAd(activity.getApplicationContext(), null);
+                    loadAd(appContext, null);
                 });
             }
 

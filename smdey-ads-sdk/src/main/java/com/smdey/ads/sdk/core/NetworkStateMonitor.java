@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class NetworkStateMonitor {
 
-    private static volatile boolean isOnline = false;
+    private static volatile boolean isOnline = true;
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
     private NetworkStateMonitor() {}
@@ -21,64 +21,58 @@ public final class NetworkStateMonitor {
             return;
         }
 
-        Context app = context.getApplicationContext();
-        ConnectivityManager cm =
-                (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final Context app = context.getApplicationContext();
+        AppExecutors.getInstance().background().execute(() -> {
+            ConnectivityManager cm =
+                    (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        if (cm == null) {
-            isOnline = false;
-            return;
-        }
-
-        try {
-            Network active = cm.getActiveNetwork();
-
-            if (active != null) {
-                NetworkCapabilities caps = cm.getNetworkCapabilities(active);
-                isOnline = isValidated(caps);
-            } else {
+            if (cm == null) {
                 isOnline = false;
+                return;
             }
 
-            cm.registerDefaultNetworkCallback(
-                    new ConnectivityManager.NetworkCallback() {
+            try {
+                Network active = cm.getActiveNetwork();
 
-                        @Override
-                        public void onCapabilitiesChanged(
-                                @NonNull Network network,
-                                @NonNull NetworkCapabilities caps) {
+                if (active != null) {
+                    NetworkCapabilities caps = cm.getNetworkCapabilities(active);
+                    isOnline = isValidated(caps);
+                } else {
+                    isOnline = false;
+                }
 
-                            isOnline = isValidated(caps);
-                        }
+                cm.registerDefaultNetworkCallback(
+                        new ConnectivityManager.NetworkCallback() {
 
-                        @Override
-                        public void onAvailable(@NonNull Network network) {
-                            NetworkCapabilities caps =
-                                    cm.getNetworkCapabilities(network);
+                            @Override
+                            public void onCapabilitiesChanged(
+                                    @NonNull Network network,
+                                    @NonNull NetworkCapabilities caps) {
 
-                            isOnline = isValidated(caps);
-                        }
-
-                        @Override
-                        public void onLost(@NonNull Network network) {
-                            Network active = cm.getActiveNetwork();
-
-                            if (active == null) {
-                                isOnline = false;
-                                return;
+                                isOnline = isValidated(caps);
                             }
 
-                            NetworkCapabilities caps =
-                                    cm.getNetworkCapabilities(active);
+                            @Override
+                            public void onLost(@NonNull Network network) {
+                                Network currentActive = cm.getActiveNetwork();
 
-                            isOnline = isValidated(caps);
+                                if (currentActive == null) {
+                                    isOnline = false;
+                                    return;
+                                }
+
+                                NetworkCapabilities caps =
+                                        cm.getNetworkCapabilities(currentActive);
+
+                                isOnline = isValidated(caps);
+                            }
                         }
-                    }
-            );
+                );
 
-        } catch (Exception ignored) {
-            isOnline = false;
-        }
+            } catch (Exception ignored) {
+                isOnline = false;
+            }
+        });
     }
 
     private static boolean isValidated(NetworkCapabilities caps) {

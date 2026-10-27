@@ -112,10 +112,6 @@ public final class SmartBannerView extends FrameLayout implements DefaultLifecyc
             return;
         }
 
-        if (activity != null) {
-            applyDynamicHeight(activity);
-        }
-
         setVisibility(VISIBLE);
         if (bannerManager != null && bannerManager.isBannerLoaded()) {
             if (adContainer != null) {

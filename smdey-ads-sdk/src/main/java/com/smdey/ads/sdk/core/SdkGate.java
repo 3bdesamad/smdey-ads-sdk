@@ -2,6 +2,7 @@ package com.smdey.ads.sdk.core;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import com.google.android.libraries.ads.mobile.sdk.initialization.Initialization
 import com.smdey.ads.sdk.AdsConfig;
 import com.smdey.ads.sdk.consent.ConsentManager;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -70,7 +72,6 @@ public final class SdkGate {
             }
         }
 
-        startupStable.set(true);
         attemptInitialization(activity);
     }
 
@@ -111,11 +112,16 @@ public final class SdkGate {
         if (!consentManager.canRequestAds()) {
             state.set(State.WAITING_CONSENT);
             Log.d(config.getTag(), "⏳ SDK - Waiting for consent. Requesting UMP consent flow...");
+            final WeakReference<Activity> activityRef = new WeakReference<>(activity);
             consentManager.gatherConsent(activity, () -> {
+                Activity currentActivity = activityRef.get();
                 if (consentManager.canRequestAds()) {
-                    notifyConsentResolved(activity);
+                    if (currentActivity != null) {
+                        notifyConsentResolved(currentActivity);
+                    }
                 } else {
                     Log.w(config.getTag(), "⚠️ SDK - Consent not granted after UMP flow.");
+                    clearPendingCallbacks();
                 }
             });
             return;
@@ -138,7 +144,11 @@ public final class SdkGate {
         long delay = 2000L; // Safe deferral to match 2.0s startup window and prevent storage I/O contention
         state.set(State.WAITING_SAFE_WINDOW);
 
-        AppExecutors.getInstance().mainThread().postDelayed(this::startInitialization, delay);
+        AppExecutors.getInstance().mainThread().postDelayed(() ->
+                Looper.myQueue().addIdleHandler(() -> {
+                    startInitialization();
+                    return false;
+                }), delay);
     }
 
     private void startInitialization() {
@@ -167,6 +177,7 @@ public final class SdkGate {
                 AppExecutors.getInstance().mainThread().execute(() -> {
                     state.set(State.FAILED);
                     initScheduled.set(false);
+                    clearPendingCallbacks();
                     Log.e(config.getTag(), "❌ SDK - Initialization failed.", e);
                 });
             }
@@ -182,6 +193,12 @@ public final class SdkGate {
 
         for (Runnable callback : callbacks) {
             AppExecutors.getInstance().mainThread().execute(callback);
+        }
+    }
+
+    private void clearPendingCallbacks() {
+        synchronized (pendingReadyCallbacks) {
+            pendingReadyCallbacks.clear();
         }
     }
 }

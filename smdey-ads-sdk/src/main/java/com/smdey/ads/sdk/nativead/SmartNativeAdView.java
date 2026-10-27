@@ -23,6 +23,8 @@ import com.smdey.ads.sdk.R;
 import com.smdey.ads.sdk.banner.ShimmerSkeletonView;
 import com.smdey.ads.sdk.core.LifecycleGuard;
 
+import java.lang.ref.WeakReference;
+
 public final class SmartNativeAdView extends FrameLayout implements DefaultLifecycleObserver {
 
     private ShimmerSkeletonView skeletonView;
@@ -113,10 +115,12 @@ public final class SmartNativeAdView extends FrameLayout implements DefaultLifec
         skeletonView.setVisibility(VISIBLE);
         skeletonView.startShimmer();
 
+        final WeakReference<Activity> activityRef = new WeakReference<>(activity);
         AdsSdk.getInstance().nativeAd().load(activity, new NativeAdManager.OnNativeAdLoadedListener() {
             @Override
             public void onAdLoaded(@NonNull NativeAd nativeAd) {
-                if (!LifecycleGuard.isActivityValid(activity)) {
+                Activity currentActivity = activityRef.get();
+                if (!LifecycleGuard.isActivityValid(currentActivity)) {
                     nativeAd.destroy();
                     return;
                 }
@@ -125,7 +129,8 @@ public final class SmartNativeAdView extends FrameLayout implements DefaultLifec
 
             @Override
             public void onAdFailedToLoad(@Nullable LoadAdError error) {
-                if (!LifecycleGuard.isActivityValid(activity)) {
+                Activity currentActivity = activityRef.get();
+                if (!LifecycleGuard.isActivityValid(currentActivity)) {
                     return;
                 }
                 if (currentNativeAd == null) {
@@ -178,12 +183,9 @@ public final class SmartNativeAdView extends FrameLayout implements DefaultLifec
     }
 
     private NativeAdView findChildNativeAdView(View root) {
-        int id = getContext().getResources().getIdentifier("nativeAdView", "id", getContext().getPackageName());
-        if (id != 0) {
-            View v = root.findViewById(id);
-            if (v instanceof NativeAdView) {
-                return (NativeAdView) v;
-            }
+        View v = NativeAdBinder.findView(root, getContext(), "nativeAdView");
+        if (v instanceof NativeAdView) {
+            return (NativeAdView) v;
         }
         return null;
     }

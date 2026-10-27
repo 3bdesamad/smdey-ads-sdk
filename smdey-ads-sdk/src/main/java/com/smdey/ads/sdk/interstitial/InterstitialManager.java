@@ -170,6 +170,15 @@ public final class InterstitialManager {
         }
     }
 
+    public void onActivityDestroyed(@NonNull Activity activity) {
+        if (pendingShowRequest != null && pendingShowRequest.getActivity() == activity) {
+            pendingShowRequest = null;
+            cancelOverlayTimeout();
+            dismissLoadingDialog();
+            fullScreenCoordinator.releaseShowLock();
+        }
+    }
+
     private void showWithLoadingOverlay(@NonNull Activity activity,
                                         @Nullable AdsCallback continuationCallback,
                                         @Nullable NavigationCallback navigationCallback) {
